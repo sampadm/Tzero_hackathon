@@ -339,10 +339,10 @@ export default function ReviewPage() {
 
   const status = asset?.status ?? "";
   const isExtracting = ["extracting", "pdf_uploaded"].includes(status);
-  const hasExtraction = extraction && extraction.sections;
+  const hasExtraction = extraction && extraction.sections && extraction.counts;
   const canProceed =
     hasExtraction &&
-    extraction.counts.needs_review === 0 &&
+    extraction.counts!.needs_review === 0 &&
     ["extraction_complete", "awaiting_intermediary_review"].includes(status);
 
   return (
