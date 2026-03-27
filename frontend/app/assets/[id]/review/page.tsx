@@ -30,12 +30,13 @@ function FieldRow({
   onOverride: (id: string, val: string, reason: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const [editVal, setEditVal] = useState(field.display_value ?? "");
+  const [editVal, setEditVal] = useState<string>(field.display_value ?? "");
   const [editReason, setEditReason] = useState("");
 
-  const isLow = field.confidence === "LOW";
-  const isMedium = field.confidence === "MEDIUM";
-  const rowBg = field.confirmed
+  const confirmed = !!field.confirmed_at;
+  const isLow = field.confidence_tier === "low";
+  const isMedium = field.confidence_tier === "medium";
+  const rowBg = confirmed
     ? "rgba(32,245,84,0.03)"
     : isLow
       ? "rgba(248,113,113,0.06)"
@@ -47,6 +48,7 @@ function FieldRow({
     : isMedium
       ? { bg: "var(--amber-dim)", border: "var(--amber)", text: "var(--amber)" }
       : { bg: "var(--emerald-dim)", border: "var(--emerald-border)", text: "var(--emerald)" };
+  const tierLabel = field.confidence_tier.toUpperCase();
 
   return (
     <div
@@ -54,7 +56,7 @@ function FieldRow({
         padding: "14px 20px",
         borderBottom: "1px solid var(--border)",
         background: rowBg,
-        borderLeft: !field.confirmed && isLow ? "3px solid var(--danger)" : "3px solid transparent",
+        borderLeft: !confirmed && isLow ? "3px solid var(--danger)" : "3px solid transparent",
       }}
     >
       <div
@@ -83,23 +85,23 @@ function FieldRow({
                 letterSpacing: "0.06em",
               }}
             >
-              {field.display_label}
+              {field.field_label || field.field_key.replace(/_/g, " ")}
             </span>
             <span
               style={{
                 fontSize: 10,
                 fontWeight: 700,
-                color: CONFIDENCE_COLOR[field.confidence] ?? "var(--text-dim)",
+                color: CONFIDENCE_COLOR[tierLabel] ?? "var(--text-dim)",
                 background: "var(--surface)",
-                border: `1px solid ${CONFIDENCE_COLOR[field.confidence] ?? "var(--border)"}`,
+                border: `1px solid ${CONFIDENCE_COLOR[tierLabel] ?? "var(--border)"}`,
                 padding: "1px 6px",
                 borderRadius: 10,
                 letterSpacing: "0.04em",
               }}
             >
-              {field.confidence}
+              {tierLabel}
             </span>
-            {field.confirmed && (
+            {confirmed && (
               <span
                 style={{
                   fontSize: 10,
@@ -210,7 +212,7 @@ function FieldRow({
                 color: "var(--text-dim)",
                 fontStyle: "italic",
                 paddingLeft: 8,
-                borderLeft: `2px solid ${isLow ? "var(--danger)" : isMedium ? "var(--amber)" : "var(--border)"}`,
+                borderLeft: `2px solid ${isLow ? "var(--danger)" : isMedium ? "var(--amber)" : "var(--border-subtle)"}`,
               }}
             >
               "{field.source_quote}"
@@ -220,7 +222,7 @@ function FieldRow({
 
         {!editing && (
           <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-            {!field.confirmed && (
+            {!confirmed && (
               <button
                 onClick={() => onConfirm(field.id)}
                 style={{
@@ -240,7 +242,7 @@ function FieldRow({
             <button
               onClick={() => {
                 setEditing(true);
-                setEditVal(field.display_value);
+                setEditVal(field.display_value ?? "");
               }}
               style={{
                 background: "none",

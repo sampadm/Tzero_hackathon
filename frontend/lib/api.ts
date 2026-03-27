@@ -96,13 +96,15 @@ export function withdrawAsset(id: string) {
 export interface FieldOut {
   id: string;
   field_key: string;
+  field_label: string;
   section: string;
-  display_label: string;
-  display_value: string;
-  confidence: string;
-  confirmed: boolean;
+  display_value: string | null;
+  confidence: number;
+  confidence_tier: string;       // "high" | "medium" | "low"
   source_quote: string | null;
-  notes: string | null;
+  source_page: number | null;
+  requires_review: boolean;
+  confirmed_at: string | null;
 }
 
 export interface ComplianceFlag {

@@ -228,7 +228,7 @@ export default function ReviewDetailPage() {
                           letterSpacing: "0.06em",
                         }}
                       >
-                        {f.display_label}
+                        {f.field_label || f.field_key.replace(/_/g, " ")}
                       </div>
                       <div
                         style={{
@@ -259,16 +259,16 @@ export default function ReviewDetailPage() {
                         style={{
                           fontSize: 10,
                           fontWeight: 700,
-                          color: CONFIDENCE_COLOR[f.confidence] ?? "var(--text-dim)",
+                          color: CONFIDENCE_COLOR[f.confidence_tier.toUpperCase()] ?? "var(--text-dim)",
                           background: "var(--surface)",
-                          border: `1px solid ${CONFIDENCE_COLOR[f.confidence] ?? "var(--border)"}`,
+                          border: `1px solid ${CONFIDENCE_COLOR[f.confidence_tier.toUpperCase()] ?? "var(--border)"}`,
                           padding: "2px 7px",
                           borderRadius: 10,
                         }}
                       >
-                        {f.confidence}
+                        {f.confidence_tier.toUpperCase()}
                       </span>
-                      {f.confirmed && (
+                      {!!f.confirmed_at && (
                         <span
                           style={{
                             fontSize: 10,
