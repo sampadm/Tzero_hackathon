@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tzero BYOA — Product Requirements Document</title>
+<style>
+  :root {
+    --emerald:        #20f554;
+    --emerald-light:  #90eda5;
+    --emerald-dark:   #0dc43d;
+    --emerald-dim:    rgba(32,245,84,0.08);
+    --emerald-glow:   rgba(32,245,84,0.18);
+    --emerald-border: rgba(32,245,84,0.22);
+    --void:      #000000;
+    --deep:      #080808;
+    --surface:   #0f0f0f;
+    --surface-2: #161616;
+    --surface-3: #1e1e1e;
+    --surface-4: #262626;
+    --edge:   rgba(255,255,255,0.07);
+    --edge-2: rgba(255,255,255,0.12);
+    --edge-3: rgba(255,255,255,0.18);
+    --white:  #ffffff;
+    --text-1: #e5e5e5;
+    --text-2: #a3a3a3;
+    --text-3: #737373;
+    --text-4: #404040;
+    --warn:        #f59e0b;
+    --warn-dim:    rgba(245,158,11,0.10);
+    --warn-border: rgba(245,158,11,0.25);
+    --danger:        #f87171;
+    --danger-dim:    rgba(248,113,113,0.08);
+    --danger-border: rgba(248,113,113,0.20);
+    --blue:        #60a5fa;
+    --blue-dim:    rgba(96,165,250,0.08);
+    --blue-border: rgba(96,165,250,0.22);
+    --font: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { background:var(--deep); color:var(--text-1); font-family:var(--font); font-size:14px; line-height:1.7; -webkit-font-smoothing:antialiased; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position:sticky; top:0; z-index:100;
+    height:56px; background:var(--void); border-bottom:1px solid var(--edge);
+    display:flex; align-items:center; justify-content:space-between; padding:0 32px;
+  }
+  .logo { display:flex; align-items:center; gap:10px; }
+  .logo-mark { font-size:17px; font-weight:700; color:var(--white); letter-spacing:-0.02em; }
+  .logo-mark em { font-style:normal; color:var(--emerald); }
+  .logo-pipe { width:1px; height:16px; background:var(--edge-2); }
+  .logo-sub { font-size:11px; font-weight:500; color:var(--text-3); letter-spacing:0.10em; text-transform:uppercase; }
+  .doc-meta { display:flex; align-items:center; gap:16px; }
+  .meta-chip { font-size:11px; padding:3px 10px; border-radius:10px; font-weight:500; }
+  .chip-draft { background:var(--warn-dim); color:var(--warn); border:1px solid var(--warn-border); }
+  .chip-v1 { background:var(--surface-3); color:var(--text-3); border:1px solid var(--edge-2); }
+  .chip-date { font-size:11px; color:var(--text-4); }
+
+  /* ── LAYOUT ── */
+  .shell { display:grid; grid-template-columns:240px 1fr; max-width:1280px; margin:0 auto; min-height:calc(100vh - 56px); }
+
+  /* ── TOC SIDEBAR ── */
+  .toc {
+    position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto;
+    border-right:1px solid var(--edge); padding:32px 0; background:var(--void);
+  }
+  .toc::-webkit-scrollbar { width:4px; }
+  .toc::-webkit-scrollbar-track { background:transparent; }
+  .toc::-webkit-scrollbar-thumb { background:var(--surface-4); border-radius:2px; }
+  .toc-label { font-size:10px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--text-4); padding:0 24px 10px; }
+  .toc-item { display:block; padding:7px 24px; font-size:12px; color:var(--text-3); text-decoration:none; transition:all 0.15s; border-left:2px solid transparent; }
+  .toc-item:hover { color:var(--text-1); background:var(--surface-2); }
+  .toc-item.active { color:var(--emerald); border-left-color:var(--emerald); background:var(--emerald-dim); }
+  .toc-sub { padding-left:36px; font-size:11px; color:var(--text-4); }
+  .toc-sub:hover { color:var(--text-2); }
+  .toc-divider { border:none; border-top:1px solid var(--edge); margin:12px 24px; }
+
+  /* ── CONTENT ── */
+  .content { padding:56px 72px 96px; max-width:860px; }
+
+  /* Document header */
+  .doc-header { margin-bottom:56px; padding-bottom:40px; border-bottom:1px solid var(--edge); }
+  .doc-eyebrow { font-size:11px; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--emerald); margin-bottom:16px; }
+  .doc-title { font-size:36px; font-weight:700; color:var(--white); letter-spacing:-0.03em; line-height:1.15; margin-bottom:12px; }
+  .doc-subtitle { font-size:16px; color:var(--text-2); line-height:1.6; max-width:620px; margin-bottom:28px; }
+  .doc-attrs { display:flex; flex-wrap:wrap; gap:24px; }
+  .doc-attr { display:flex; flex-direction:column; gap:3px; }
+  .doc-attr-label { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-4); }
+  .doc-attr-value { font-size:13px; color:var(--text-2); }
+
+  /* Section */
+  .section { margin-bottom:64px; scroll-margin-top:72px; }
+  .section-num { font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--emerald); margin-bottom:8px; }
+  .section-title { font-size:22px; font-weight:700; color:var(--white); letter-spacing:-0.02em; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--edge); }
+  .subsection { margin-top:36px; scroll-margin-top:72px; }
+  .subsection-title { font-size:15px; font-weight:600; color:var(--text-1); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+  .subsection-title::before { content:''; display:inline-block; width:3px; height:14px; background:var(--emerald); border-radius:2px; flex-shrink:0; }
+
+  /* Prose */
+  p { color:var(--text-2); font-size:14px; line-height:1.75; margin-bottom:14px; }
+  p:last-child { margin-bottom:0; }
+  strong { color:var(--text-1); font-weight:600; }
+
+  /* Problem statement callout */
+  .problem-box {
+    background:var(--surface); border:1px solid var(--edge-2); border-left:3px solid var(--emerald);
+    border-radius:8px; padding:20px 24px; margin:24px 0;
+  }
+  .problem-box p { margin-bottom:0; }
+
+  /* Tables */
+  .table-wrap { overflow-x:auto; margin:20px 0; border-radius:8px; border:1px solid var(--edge); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  thead { background:var(--surface-2); }
+  th { padding:11px 16px; text-align:left; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-3); border-bottom:1px solid var(--edge-2); white-space:nowrap; }
+  td { padding:11px 16px; color:var(--text-2); border-bottom:1px solid var(--edge); vertical-align:top; line-height:1.6; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--surface-2); }
+  td strong { color:var(--text-1); }
+  td code { font-family:monospace; font-size:12px; background:var(--surface-3); padding:1px 5px; border-radius:3px; color:var(--emerald); }
+
+  /* Persona card */
+  .persona-card {
+    background:var(--surface); border:1px solid var(--edge); border-radius:10px;
+    overflow:hidden; margin:20px 0;
+  }
+  .persona-header { padding:18px 24px; background:var(--surface-2); border-bottom:1px solid var(--edge); display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+  .persona-role { font-size:16px; font-weight:700; color:var(--white); margin-bottom:4px; }
+  .persona-who { font-size:13px; color:var(--text-2); line-height:1.5; }
+  .persona-tag { font-size:10px; font-weight:600; padding:4px 12px; border-radius:10px; text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap; flex-shrink:0; margin-top:4px; }
+  .tag-primary { background:var(--emerald-dim); color:var(--emerald); border:1px solid var(--emerald-border); }
+  .tag-internal { background:var(--blue-dim); color:var(--blue); border:1px solid var(--blue-border); }
+  .persona-attrs { padding:16px 24px; display:flex; gap:32px; border-bottom:1px solid var(--edge); }
+  .pattr { display:flex; flex-direction:column; gap:3px; }
+  .pattr-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-4); }
+  .pattr-value { font-size:13px; color:var(--text-2); }
+
+  /* Journey steps */
+  .journey { padding:20px 24px; }
+  .journey-step { display:flex; gap:14px; margin-bottom:4px; position:relative; }
+  .journey-step:not(:last-child)::after {
+    content:''; position:absolute; left:15px; top:28px; width:1px;
+    height:calc(100% + 4px); background:var(--surface-4);
+  }
+  .step-dot { width:30px; height:30px; border-radius:50%; background:var(--surface-3); border:1px solid var(--edge-2); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--text-3); flex-shrink:0; z-index:1; }
+  .step-body { flex:1; padding-bottom:20px; }
+  .step-title { font-size:13px; font-weight:600; color:var(--text-1); margin-bottom:6px; margin-top:5px; }
+  .step-items { list-style:none; }
+  .step-items li { font-size:12px; color:var(--text-3); padding:2px 0; padding-left:14px; position:relative; line-height:1.6; }
+  .step-items li::before { content:'└'; position:absolute; left:0; color:var(--text-4); font-size:10px; }
+
+  /* Scope lists */
+  .scope-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:16px; }
+  .scope-box { background:var(--surface); border:1px solid var(--edge); border-radius:8px; overflow:hidden; }
+  .scope-box-header { padding:12px 18px; border-bottom:1px solid var(--edge); display:flex; align-items:center; gap:8px; }
+  .scope-box-title { font-size:12px; font-weight:600; }
+  .scope-in .scope-box-title { color:var(--emerald); }
+  .scope-out .scope-box-title { color:var(--text-3); }
+  .scope-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .scope-in .scope-dot { background:var(--emerald); }
+  .scope-out .scope-dot { background:var(--surface-4); }
+  .scope-list { padding:14px 18px; list-style:none; }
+  .scope-list li { font-size:12px; color:var(--text-2); padding:4px 0; padding-left:14px; position:relative; border-bottom:1px solid var(--edge); line-height:1.5; }
+  .scope-list li:last-child { border-bottom:none; }
+  .scope-list li::before { content:'·'; position:absolute; left:4px; color:var(--text-4); }
+
+  /* Corner cases */
+  .corner-section { margin-top:28px; }
+  .corner-title { font-size:13px; font-weight:600; color:var(--text-2); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .corner-title::before { content:''; width:12px; height:12px; border:1.5px solid var(--warn); border-radius:50%; flex-shrink:0; }
+
+  /* Open questions */
+  .oq-list { list-style:none; margin-top:16px; }
+  .oq-item { display:flex; gap:14px; padding:14px 0; border-bottom:1px solid var(--edge); }
+  .oq-item:last-child { border-bottom:none; }
+  .oq-num { width:24px; height:24px; border-radius:50%; background:var(--surface-3); border:1px solid var(--edge-2); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:var(--text-3); flex-shrink:0; margin-top:1px; }
+  .oq-text { font-size:13px; color:var(--text-2); line-height:1.6; }
+  .oq-text strong { color:var(--text-1); }
+
+  /* Metric highlight */
+  .metric-highlight { color:var(--emerald); font-weight:700; }
+  .metric-warn { color:var(--warn); font-weight:700; }
+
+  /* Tech stack list */
+  .tech-list { list-style:none; margin-top:12px; }
+  .tech-item { display:flex; align-items:baseline; gap:10px; padding:7px 0; border-bottom:1px solid var(--edge); font-size:13px; }
+  .tech-item:last-child { border-bottom:none; }
+  .tech-name { color:var(--text-1); font-weight:500; min-width:200px; flex-shrink:0; }
+  .tech-desc { color:var(--text-3); }
+
+  /* UI principles */
+  .principle-list { list-style:none; margin-top:12px; display:flex; flex-direction:column; gap:10px; }
+  .principle-item { background:var(--surface); border:1px solid var(--edge); border-radius:6px; padding:14px 16px; display:flex; gap:12px; }
+  .principle-icon { color:var(--emerald); font-size:16px; flex-shrink:0; }
+  .principle-body {}
+  .principle-title { font-size:13px; font-weight:600; color:var(--text-1); margin-bottom:3px; }
+  .principle-desc { font-size:12px; color:var(--text-3); line-height:1.5; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-mark"><em>t</em>Zero</span>
+    <div class="logo-pipe"></div>
+    <span class="logo-sub">Product Requirements</span>
+  </div>
+  <div class="doc-meta">
+    <span class="meta-chip chip-draft">Draft</span>
+    <span class="meta-chip chip-v1">v1.0</span>
+    <span class="chip-date">Last updated 2026-03-26</span>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- TOC -->
+  <nav class="toc">
+    <div class="toc-label">Contents</div>
+    <a href="#problem" class="toc-item">1. Problem Statement</a>
+    <a href="#metrics" class="toc-item">2. Business Metrics</a>
+    <a href="#personas" class="toc-item">3. Personas & Journeys</a>
+    <a href="#personas" class="toc-item toc-sub">Intermediary</a>
+    <a href="#persona-reviewer" class="toc-item toc-sub">Compliance Reviewer</a>
+    <a href="#tech-metrics" class="toc-item">4. Technical Metrics</a>
+    <a href="#scope" class="toc-item">5. Scope of MVP</a>
+    <a href="#technical" class="toc-item">6. Technical Considerations</a>
+    <a href="#technical" class="toc-item toc-sub">AI Pipeline</a>
+    <a href="#contract-tech" class="toc-item toc-sub">Smart Contracts</a>
+    <a href="#stack" class="toc-item toc-sub">Recommended Stack</a>
+    <a href="#ui-style" class="toc-item">7. UI Style</a>
+    <a href="#corner" class="toc-item">8. Corner Cases</a>
+    <a href="#open" class="toc-item">9. Open Questions</a>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- Document header -->
+    <div class="doc-header">
+      <div class="doc-eyebrow">Product Requirements Document</div>
+      <div class="doc-title">Tzero BYOA<br>Bring Your Own Asset</div>
+      <div class="doc-subtitle">An AI-driven onboarding workflow that enables intermediaries to tokenize real-world equity assets onto Ethereum via ERC-3643 smart contracts — without manual Tzero engineering involvement.</div>
+      <div class="doc-attrs">
+        <div class="doc-attr"><span class="doc-attr-label">Version</span><span class="doc-attr-value">1.0 — MVP</span></div>
+        <div class="doc-attr"><span class="doc-attr-label">Status</span><span class="doc-attr-value">Draft</span></div>
+        <div class="doc-attr"><span class="doc-attr-label">Author</span><span class="doc-attr-value">Product Manager, Tzero</span></div>
+        <div class="doc-attr"><span class="doc-attr-label">Last Updated</span><span class="doc-attr-value">2026-03-26</span></div>
+        <div class="doc-attr"><span class="doc-attr-label">Asset Types</span><span class="doc-attr-value">Equity (US, NVCA-format)</span></div>
+      </div>
+    </div>
+
+    <!-- 1. Problem Statement -->
+    <div class="section" id="problem">
+      <div class="section-num">Section 01</div>
+      <div class="section-title">Problem Statement</div>
+      <p>Tokenizing real-world assets requires translating complex legal documents — like equity term sheets — into secure, on-chain smart contracts. Today, this translation is entirely manual, demanding rare and expensive cross-domain expertise (legal + blockchain), drastically slowing time-to-market, and introducing high risk of human error when converting nuanced legal conditions into immutable code.</p>
+      <p>Private company asset owners and their intermediaries (law firms, placement agents, transfer agents) have no self-service path to bring assets onto Tzero's platform. Every tokenization engagement is custom, slow, and costly — limiting Tzero's ability to scale its asset base.</p>
+
+      <div class="problem-box">
+        <p><strong>BYOA solves this</strong> by introducing an AI-driven onboarding workflow on Tzero.com that accepts standardized NVCA-format term sheets, extracts key financial parameters via AI, automatically generates compliant ERC-3643 smart contract code, routes through a dual-approval gate, and triggers a listing request upon successful deployment.</p>
+      </div>
+    </div>
+
+    <!-- 2. Business Metrics -->
+    <div class="section" id="metrics">
+      <div class="section-num">Section 02</div>
+      <div class="section-title">Business Success Metrics</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Definition</th><th>MVP Target</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Time-to-Market</strong></td>
+              <td>Days from term sheet upload to deployed smart contract</td>
+              <td><span class="metric-highlight">&lt; 10 business days</span> (from 30–90 days manual)</td>
+            </tr>
+            <tr>
+              <td><strong>AI Extraction Accuracy</strong></td>
+              <td>% of term sheet fields correctly extracted without human correction</td>
+              <td><span class="metric-highlight">≥ 85%</span> on NVCA-standard documents</td>
+            </tr>
+            <tr>
+              <td><strong>Compliance Gate Pass Rate</strong></td>
+              <td>% of submissions approved by Tzero compliance on first review (no rework)</td>
+              <td><span class="metric-highlight">≥ 70%</span></td>
+            </tr>
+            <tr>
+              <td><strong>Fee per Tokenization</strong></td>
+              <td>Revenue captured per successfully deployed asset</td>
+              <td>Tiered: flat fee + % of AUM above threshold <span class="metric-warn">(rates TBD)</span></td>
+            </tr>
+            <tr>
+              <td><strong>User Experience (CSAT)</strong></td>
+              <td>Post-onboarding satisfaction score from intermediary firms</td>
+              <td><span class="metric-highlight">≥ 4/5</span> average</td>
+            </tr>
+            <tr>
+              <td><strong>Pilot Throughput</strong></td>
+              <td>Number of assets successfully tokenized in first 6 months</td>
+              <td><span class="metric-highlight">5–20 assets</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. Personas -->
+    <div class="section" id="personas">
+      <div class="section-num">Section 03</div>
+      <div class="section-title">Personas &amp; Key User Journeys</div>
+
+      <!-- Persona 1 -->
+      <div class="persona-card">
+        <div class="persona-header">
+          <div>
+            <div class="persona-role">Persona 1 — The Intermediary</div>
+            <div class="persona-who">A professional at a law firm, placement agent, or transfer agent acting on behalf of a private company asset owner.</div>
+          </div>
+          <span class="persona-tag tag-primary">Primary User</span>
+        </div>
+        <div class="persona-attrs">
+          <div class="pattr"><span class="pattr-label">Goal</span><span class="pattr-value">Efficiently onboard a client's equity asset onto Tzero with minimal back-and-forth</span></div>
+          <div class="pattr"><span class="pattr-label">Technical Level</span><span class="pattr-value">High — legal &amp; financial. Limited blockchain expertise.</span></div>
+          <div class="pattr"><span class="pattr-label">Pain Today</span><span class="pattr-value">Manual process is slow, opaque, requires deep Tzero coordination</span></div>
+        </div>
+        <div class="journey">
+          <div class="journey-step">
+            <div class="step-dot">1</div>
+            <div class="step-body">
+              <div class="step-title">Registration &amp; Firm Onboarding</div>
+              <ul class="step-items">
+                <li>Intermediary firm receives invite or applies for BYOA access</li>
+                <li>Firm-level account created on Tzero.com</li>
+                <li>Firm completes KYB (Know Your Business) verification</li>
+                <li>Account activated — single firm login with BYOA dashboard access</li>
+              </ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">2</div>
+            <div class="step-body">
+              <div class="step-title">Asset Submission Initiation</div>
+              <ul class="step-items">
+                <li>Logs in → navigates to BYOA section on Tzero.com</li>
+                <li>Clicks "Onboard New Asset"</li>
+                <li>Fills in: asset name, issuing company, asset type (Equity), estimated valuation, jurisdiction (US)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">3</div>
+            <div class="step-body">
+              <div class="step-title">Term Sheet Upload</div>
+              <ul class="step-items">
+                <li>Uploads NVCA-format PDF term sheet</li>
+                <li>System validates file format and size</li>
+                <li>AI pipeline processes document (async — status indicator shown)</li>
+                <li>Extraction results displayed with confidence scores per field (HIGH / MEDIUM / LOW)</li>
+                <li>LOW-confidence fields flagged for mandatory review</li>
+              </ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">4</div>
+            <div class="step-body">
+              <div class="step-title">Intermediary Review &amp; Override</div>
+              <ul class="step-items">
+                <li>Reviews all extracted fields in structured form UI</li>
+                <li>Can edit any field — overrides logged with timestamp and user</li>
+                <li>Low-confidence fields highlighted — must explicitly confirm or correct each</li>
+                <li>Once all fields confirmed → submits for Tzero compliance review</li>
+              </ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">5</div>
+            <div class="step-body">
+              <div class="step-title">Tzero Compliance Review (async)</div>
+              <ul class="step-items">
+                <li>Tzero internal reviewer receives notification</li>
+                <li>Reviews extracted parameters + intermediary overrides</li>
+                <li>Can: Approve / Request Changes / Reject with reason</li>
+                <li>If changes requested → intermediary notified, returns to step 4 with comments</li>
+              </ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">6</div>
+            <div class="step-body">
+              <div class="step-title">Smart Contract Generation</div>
+              <ul class="step-items">
+                <li>System auto-generates ERC-3643 compliant smart contract code</li>
+                <li>Human-readable contract summary generated alongside code</li>
+                <li>Both displayed to intermediary for final review</li>
+                <li>Intermediary confirms match with client's intent → approves</li>
+                <li>Tzero compliance does final sign-off on generated contract</li>
+              </ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">7</div>
+            <div class="step-body">
+              <div class="step-title">Deployment</div>
+              <ul class="step-items">
+                <li>Tzero deploys contract to Ethereum mainnet</li>
+                <li>Transaction hash returned — visible in dashboard</li>
+                <li>Asset status updated: "Deployed — Pending Listing Activation"</li>
+                <li>Listing request automatically triggered to Tzero's trading team</li>
+              </ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">8</div>
+            <div class="step-body">
+              <div class="step-title">Post-Deployment</div>
+              <ul class="step-items">
+                <li>Intermediary receives: contract address, transaction hash, human-readable summary PDF, fee invoice</li>
+                <li>Tzero trading team activates listing separately (out of BYOA scope)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Persona 2 -->
+      <div class="persona-card" id="persona-reviewer">
+        <div class="persona-header">
+          <div>
+            <div class="persona-role">Persona 2 — Tzero Compliance Reviewer</div>
+            <div class="persona-who">Tzero internal legal/compliance team member responsible for reviewing submissions before deployment.</div>
+          </div>
+          <span class="persona-tag tag-internal">Internal User</span>
+        </div>
+        <div class="persona-attrs">
+          <div class="pattr"><span class="pattr-label">Goal</span><span class="pattr-value">Quickly verify extracted parameters are accurate and compliant (Reg D/Reg S)</span></div>
+          <div class="pattr"><span class="pattr-label">Pain Today</span><span class="pattr-value">No structured tooling — reviews are ad hoc via email/docs</span></div>
+        </div>
+        <div class="journey">
+          <div class="journey-step">
+            <div class="step-dot">1</div>
+            <div class="step-body">
+              <div class="step-title">Notification</div>
+              <ul class="step-items"><li>Receives in-platform notification + email when intermediary submits for review</li></ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">2</div>
+            <div class="step-body">
+              <div class="step-title">Review Dashboard</div>
+              <ul class="step-items">
+                <li>Sees queue of pending submissions</li>
+                <li>Opens submission → views original PDF side-by-side with AI-extracted fields</li>
+                <li>Intermediary overrides highlighted in diff view</li>
+                <li>Compliance flags raised by AI (Reg D/Reg S, accredited investor gate)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">3</div>
+            <div class="step-body">
+              <div class="step-title">Decision</div>
+              <ul class="step-items">
+                <li>Approve → advances to contract generation</li>
+                <li>Request Changes → adds per-field comments → notifies intermediary</li>
+                <li>Reject → adds reason → notifies intermediary → case closed</li>
+              </ul>
+            </div>
+          </div>
+          <div class="journey-step">
+            <div class="step-dot">4</div>
+            <div class="step-body">
+              <div class="step-title">Contract Sign-Off (second gate)</div>
+              <ul class="step-items">
+                <li>After contract is generated, does final review of Solidity code + summary</li>
+                <li>Approves → Tzero deploys to Ethereum mainnet</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Technical Metrics -->
+    <div class="section" id="tech-metrics">
+      <div class="section-num">Section 04</div>
+      <div class="section-title">Technical Success Metrics</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td><strong>AI Extraction Latency</strong></td><td><span class="metric-highlight">&lt; 60 seconds</span> — term sheet processed and results displayed</td></tr>
+            <tr><td><strong>Contract Generation Latency</strong></td><td><span class="metric-highlight">&lt; 30 seconds</span> after dual approval</td></tr>
+            <tr><td><strong>Extraction Field Accuracy</strong></td><td><span class="metric-highlight">≥ 85%</span> of fields correctly parsed on NVCA-standard PDFs</td></tr>
+            <tr><td><strong>System Uptime</strong></td><td><span class="metric-highlight">99.5%</span> for the BYOA onboarding portal</td></tr>
+            <tr><td><strong>Deployment Success Rate</strong></td><td><span class="metric-highlight">≥ 99%</span> of approved contracts successfully deployed on first attempt</td></tr>
+            <tr><td><strong>Audit Log Completeness</strong></td><td><span class="metric-highlight">100%</span> of field overrides, approvals, and rejections logged with user + timestamp</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. Scope -->
+    <div class="section" id="scope">
+      <div class="section-num">Section 05</div>
+      <div class="section-title">Scope of MVP</div>
+      <div class="scope-grid">
+        <div class="scope-box scope-in">
+          <div class="scope-box-header"><div class="scope-dot"></div><span class="scope-box-title">In Scope</span></div>
+          <ul class="scope-list">
+            <li>Firm-level account creation and authentication</li>
+            <li>Asset metadata capture form</li>
+            <li>NVCA-format PDF upload + AI extraction pipeline</li>
+            <li>Structured extraction review UI with confidence scoring and override</li>
+            <li>Dual-approval gate: intermediary → Tzero compliance</li>
+            <li>ERC-3643 smart contract auto-generation (Ethereum mainnet)</li>
+            <li>Human-readable contract summary generation</li>
+            <li>Tzero-controlled deployment to Ethereum mainnet</li>
+            <li>Post-deployment confirmation with contract address, tx hash, summary PDF</li>
+            <li>Automatic listing request trigger to Tzero trading team</li>
+            <li>Fee invoice generation (flat fee + AUM % above threshold)</li>
+            <li>Status tracking dashboard</li>
+            <li>Email notifications for key state transitions</li>
+            <li>Full audit log of all actions</li>
+            <li>US regulatory compliance: Reg D / Reg S / accredited investor rules</li>
+            <li>Tzero.com design system adherence</li>
+          </ul>
+        </div>
+        <div class="scope-box scope-out">
+          <div class="scope-box-header"><div class="scope-dot"></div><span class="scope-box-title">Out of Scope — MVP</span></div>
+          <ul class="scope-list">
+            <li>Individual user seat management within a firm</li>
+            <li>Non-equity asset types (debt, real estate, funds)</li>
+            <li>Non-US jurisdictions</li>
+            <li>Non-NVCA / unstructured term sheet formats</li>
+            <li>Secondary market listing activation</li>
+            <li>Self-service deployment by intermediary</li>
+            <li>Blockchain networks other than Ethereum mainnet</li>
+            <li>Secondary market trading UI</li>
+            <li>Mobile application</li>
+            <li>API access for intermediaries</li>
+            <li>Bulk asset onboarding</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Technical Considerations -->
+    <div class="section" id="technical">
+      <div class="section-num">Section 06</div>
+      <div class="section-title">Technical Considerations</div>
+
+      <div class="subsection">
+        <div class="subsection-title">AI Pipeline</div>
+        <ul class="tech-list">
+          <li class="tech-item"><span class="tech-name">Document Parsing</span><span class="tech-desc">PDF text extraction with layout awareness — handles multi-column NVCA formats. Libraries: pdfplumber (open source) + LLM, or AWS Textract / Google Document AI.</span></li>
+          <li class="tech-item"><span class="tech-name">Parameter Extraction</span><span class="tech-desc">LLM-based extraction (Claude API or GPT-4) with structured output schema mapping to NVCA equity term sheet fields. Prompt-engineered for NVCA-standard documents.</span></li>
+          <li class="tech-item"><span class="tech-name">Confidence Scoring</span><span class="tech-desc">Per-field confidence score based on extraction certainty. Fields below threshold flagged for human review. Threshold tunable post-launch.</span></li>
+          <li class="tech-item"><span class="tech-name">Compliance Detection</span><span class="tech-desc">Rule-based layer on top of extraction — flags Reg D / Reg S applicability based on investor type, geography, and offering size fields.</span></li>
+        </ul>
+      </div>
+
+      <div class="subsection" id="contract-tech">
+        <div class="subsection-title">Smart Contract Generation</div>
+        <ul class="tech-list">
+          <li class="tech-item"><span class="tech-name">Standard</span><span class="tech-desc">ERC-3643 (T-REX protocol) — permissioned token standard designed for regulated securities.</span></li>
+          <li class="tech-item"><span class="tech-name">Approach</span><span class="tech-desc">Template-based generation — pre-audited ERC-3643 contract templates parameterized by extracted fields. Reduces risk vs. fully generative code. Templates cover: standard equity, preferred equity with liquidation preference, equity with conversion rights.</span></li>
+          <li class="tech-item"><span class="tech-name">Audit Requirement</span><span class="tech-desc">All templates must be pre-audited by a third-party smart contract auditor before MVP launch.</span></li>
+          <li class="tech-item"><span class="tech-name">Output</span><span class="tech-desc">Solidity source code + ABI + deployment bytecode.</span></li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Deployment Infrastructure</div>
+        <ul class="tech-list">
+          <li class="tech-item"><span class="tech-name">Wallet</span><span class="tech-desc">Tzero-controlled deployment wallet (multisig recommended).</span></li>
+          <li class="tech-item"><span class="tech-name">Trigger Gate</span><span class="tech-desc">Deployment triggered only after dual approval is recorded in audit log.</span></li>
+          <li class="tech-item"><span class="tech-name">Monitoring</span><span class="tech-desc">Transaction monitoring — confirm on-chain inclusion before marking as deployed. Gas management handled by Tzero, not exposed to intermediary.</span></li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Data &amp; Security</div>
+        <ul class="tech-list">
+          <li class="tech-item"><span class="tech-name">Encryption</span><span class="tech-desc">All uploaded PDFs and extracted data encrypted at rest (AES-256) and in transit (TLS 1.3).</span></li>
+          <li class="tech-item"><span class="tech-name">Data Isolation</span><span class="tech-desc">Term sheet data and generated contracts never exposed to third parties. Firm accounts can only see their own submissions.</span></li>
+          <li class="tech-item"><span class="tech-name">Audit Log</span><span class="tech-desc">Immutable — append-only, tamper-evident. Role-based access enforced throughout.</span></li>
+        </ul>
+      </div>
+
+      <div class="subsection" id="stack">
+        <div class="subsection-title">Recommended Stack</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Layer</th><th>Technology</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Backend</strong></td><td>Node.js or Python (FastAPI) on AWS Lambda / Railway / Render (serverless-first)</td></tr>
+              <tr><td><strong>AI Extraction</strong></td><td>Claude API or OpenAI API (pay-per-use, no model hosting cost)</td></tr>
+              <tr><td><strong>PDF Parsing</strong></td><td>pdfplumber (open source) + LLM extraction</td></tr>
+              <tr><td><strong>Database</strong></td><td>PostgreSQL (managed — Supabase or AWS RDS)</td></tr>
+              <tr><td><strong>File Storage</strong></td><td>AWS S3 (encrypted)</td></tr>
+              <tr><td><strong>Frontend</strong></td><td>React (Next.js) — Tzero design system components</td></tr>
+              <tr><td><strong>Smart Contracts</strong></td><td>Hardhat for compilation/deployment scripts</td></tr>
+              <tr><td><strong>Ethereum RPC</strong></td><td>Infura or Alchemy (managed node — no self-hosted node)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. UI Style -->
+    <div class="section" id="ui-style">
+      <div class="section-num">Section 07</div>
+      <div class="section-title">UI Style Preferences</div>
+      <p>Must strictly conform to <strong>Tzero.com's existing design system</strong> — typography, color palette, component library, spacing, and interaction patterns. BYOA is a new section/module within Tzero.com — accessible via authenticated navigation.</p>
+      <ul class="principle-list">
+        <li class="principle-item"><span class="principle-icon">→</span><div class="principle-body"><div class="principle-title">Progressive Disclosure</div><div class="principle-desc">Multi-step wizard pattern, one clear action per screen. Users are never overwhelmed by the full workflow at once.</div></div></li>
+        <li class="principle-item"><span class="principle-icon">◎</span><div class="principle-body"><div class="principle-title">Status Transparency</div><div class="principle-desc">Always-visible submission status (e.g., "In Review," "Changes Requested," "Deployed") with timestamps. No opaque waiting states.</div></div></li>
+        <li class="principle-item"><span class="principle-icon">▣</span><div class="principle-body"><div class="principle-title">Confidence Visualization</div><div class="principle-desc">Color-coded field confidence (green/yellow/red) in the extraction review UI — informative without being visually overwhelming.</div></div></li>
+        <li class="principle-item"><span class="principle-icon">⊞</span><div class="principle-body"><div class="principle-title">Side-by-Side Review</div><div class="principle-desc">Original PDF viewable alongside extracted fields during review step. Enables fast cross-referencing without tab-switching.</div></div></li>
+        <li class="principle-item"><span class="principle-icon">≡</span><div class="principle-body"><div class="principle-title">Audit Trail Visibility</div><div class="principle-desc">Intermediary can see a full timeline of all actions taken on their submission — overrides, approvals, rejections, deployments.</div></div></li>
+      </ul>
+    </div>
+
+    <!-- 8. Corner Cases -->
+    <div class="section" id="corner">
+      <div class="section-num">Section 08</div>
+      <div class="section-title">Corner Cases</div>
+
+      <div class="corner-section">
+        <div class="corner-title">AI Extraction</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Handling</th></tr></thead>
+            <tbody>
+              <tr><td>PDF is scanned image (not text-based)</td><td>Reject with error: "Please upload a text-based PDF. Scanned images are not supported."</td></tr>
+              <tr><td>Term sheet is missing critical fields (e.g., valuation cap absent)</td><td>Flag missing required fields — block progression until intermediary manually enters value</td></tr>
+              <tr><td>Ambiguous or contradictory clauses</td><td>AI flags the specific clause, marks field as LOW confidence, requires intermediary review</td></tr>
+              <tr><td>Term sheet references external documents ("as defined in Schedule A")</td><td>AI flags dependency — intermediary prompted to manually enter the referenced value</td></tr>
+              <tr><td>PDF contains multiple term sheets (multi-asset upload)</td><td>Reject with error — one term sheet per submission for MVP</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="corner-section">
+        <div class="corner-title">Dual Approval Gate</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Handling</th></tr></thead>
+            <tbody>
+              <tr><td>Tzero compliance requests changes after intermediary already approved</td><td>Intermediary notified, returns to review step — prior approval invalidated, must re-approve after changes</td></tr>
+              <tr><td>Tzero compliance rejects submission</td><td>Intermediary notified with reason — submission closed, new submission required</td></tr>
+              <tr><td>Intermediary abandons workflow mid-step</td><td>Draft state saved — intermediary can resume from last completed step</td></tr>
+              <tr><td>Intermediary wants to withdraw before Tzero review</td><td>Allow withdrawal — submission cancelled, audit log updated</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="corner-section">
+        <div class="corner-title">Deployment</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Handling</th></tr></thead>
+            <tbody>
+              <tr><td>Ethereum network congestion causes deployment failure</td><td>Retry logic with exponential backoff — intermediary notified if unresolved after 3 attempts, Tzero ops alerted</td></tr>
+              <tr><td>Gas price spike increases deployment cost significantly</td><td>Tzero absorbs gas cost (not passed to intermediary in MVP) — ops team alerted for high-gas events</td></tr>
+              <tr><td>Contract deployment succeeds but transaction not confirmed within timeout</td><td>Monitor mempool — alert Tzero ops team, do not mark as deployed until confirmed</td></tr>
+              <tr><td>Duplicate submission (same asset submitted twice)</td><td>Detect by company name + asset name combination — warn intermediary of potential duplicate before submission</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="corner-section">
+        <div class="corner-title">Compliance</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Handling</th></tr></thead>
+            <tbody>
+              <tr><td>Asset valuation entered is implausibly low or high</td><td>Soft warning to intermediary — does not block, but logged for Tzero compliance reviewer attention</td></tr>
+              <tr><td>Term sheet indicates non-accredited investors</td><td>AI flags as non-compliant with Reg D — Tzero compliance reviewer alerted, submission blocked from auto-advancing</td></tr>
+              <tr><td>Issuing company is foreign-incorporated (non-US)</td><td>Flagged for Tzero compliance review — may require Reg S treatment; reviewer decides</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="corner-section">
+        <div class="corner-title">Account &amp; Access</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Handling</th></tr></thead>
+            <tbody>
+              <tr><td>Firm account not yet KYB-verified tries to submit</td><td>Blocked — prompt to complete KYB before submitting assets</td></tr>
+              <tr><td>Tzero compliance reviewer is unavailable (OOO)</td><td>No automated escalation in MVP — ops team manages reviewer coverage manually</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Open Questions -->
+    <div class="section" id="open">
+      <div class="section-num">Section 09</div>
+      <div class="section-title">Open Questions — Post-MVP Roadmap Inputs</div>
+      <ul class="oq-list">
+        <li class="oq-item"><span class="oq-num">1</span><div class="oq-text"><strong>Fee structure specifics</strong> — exact flat fee amount and AUM % threshold to be defined by Tzero finance team.</div></li>
+        <li class="oq-item"><span class="oq-num">2</span><div class="oq-text"><strong>Tzero compliance SLA</strong> — formalize a target review turnaround time as volume grows.</div></li>
+        <li class="oq-item"><span class="oq-num">3</span><div class="oq-text"><strong>Multi-user firm seats</strong> — individual roles within a firm (admin, submitter) needed as firm usage scales.</div></li>
+        <li class="oq-item"><span class="oq-num">4</span><div class="oq-text"><strong>API access for intermediaries</strong> — programmatic submission for high-volume firms.</div></li>
+        <li class="oq-item"><span class="oq-num">5</span><div class="oq-text"><strong>Additional asset types</strong> — convertible notes, debt instruments as next expansion after equity MVP.</div></li>
+        <li class="oq-item"><span class="oq-num">6</span><div class="oq-text"><strong>International jurisdictions</strong> — EU MiCA, UK FCA as next compliance layer.</div></li>
+        <li class="oq-item"><span class="oq-num">7</span><div class="oq-text"><strong>Non-NVCA term sheet support</strong> — expanding AI extraction to handle unstructured / law-firm-specific formats.</div></li>
+        <li class="oq-item"><span class="oq-num">8</span><div class="oq-text"><strong>Smart contract template expansion</strong> — additional equity structures beyond standard/preferred/convertible.</div></li>
+        <li class="oq-item"><span class="oq-num">9</span><div class="oq-text"><strong>Secondary blockchain support</strong> — L2s (Polygon, Base) for lower gas cost once volume warrants.</div></li>
+      </ul>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Highlight active TOC item on scroll
+  const sections = document.querySelectorAll('.section, .subsection');
+  const tocItems = document.querySelectorAll('.toc-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        tocItems.forEach(item => {
+          item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s.id && observer.observe(s));
+</script>
+</body>
+</html>

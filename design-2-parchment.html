@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tzero BYOA — Design 2: Parchment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream-0: #FDFAF5;
+    --cream-1: #F7F2E8;
+    --cream-2: #EDE5D4;
+    --cream-3: #DDD3BE;
+    --forest: #1B4332;
+    --forest-mid: #2D6A4F;
+    --forest-light: #40916C;
+    --forest-pale: rgba(27,67,50,0.06);
+    --gold: #B7882C;
+    --gold-light: #D4A843;
+    --gold-pale: rgba(183,136,44,0.1);
+    --ink: #1A1710;
+    --ink-mid: #3D3A30;
+    --ink-light: #7A7560;
+    --ink-faint: #B8B4A4;
+    --red-warn: #8B2020;
+    --red-pale: rgba(139,32,32,0.08);
+    --serif: 'Playfair Display', Georgia, serif;
+    --body: 'Lora', Georgia, serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream-1);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* Subtle paper texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  /* ── TOP NAV ── */
+  .topnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    border-bottom: 1px solid var(--cream-3);
+    background: var(--cream-0);
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .logo-wordmark {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--forest);
+    letter-spacing: -0.02em;
+  }
+
+  .logo-sep {
+    width: 1px;
+    height: 18px;
+    background: var(--cream-3);
+    align-self: center;
+  }
+
+  .logo-sub {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--ink-light);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .nav-link {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--ink-light);
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+
+  .nav-link:hover { color: var(--forest); }
+  .nav-link.active { color: var(--forest); font-weight: 500; }
+
+  .nav-firm {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--ink-light);
+    background: var(--cream-1);
+    border: 1px solid var(--cream-3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav-firm-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--forest-light);
+  }
+
+  /* ── BREADCRUMB ── */
+  .breadcrumb {
+    padding: 14px 48px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--ink-faint);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .breadcrumb span { color: var(--ink-light); }
+  .breadcrumb .sep { color: var(--ink-faint); }
+
+  /* ── PAGE LAYOUT ── */
+  .page {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: calc(100vh - 85px - 45px);
+  }
+
+  /* ── LEFT NAV ── */
+  .left-nav {
+    border-right: 1px solid var(--cream-3);
+    padding: 40px 0;
+    background: var(--cream-0);
+  }
+
+  .left-nav-section {
+    padding: 0 28px 20px;
+  }
+
+  .section-eyebrow {
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+
+  /* Step list */
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .step-item:hover { background: var(--cream-1); }
+
+  .step-item.active {
+    background: var(--forest-pale);
+  }
+
+  .step-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--cream-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--sans);
+    font-size: 10px;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    background: var(--cream-0);
+    margin-top: 1px;
+  }
+
+  .step-item.done .step-circle {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: white;
+    font-size: 11px;
+  }
+
+  .step-item.active .step-circle {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: white;
+    box-shadow: 0 0 0 3px rgba(27,67,50,0.12);
+  }
+
+  .step-meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .step-label {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-mid);
+  }
+
+  .step-item.active .step-label { color: var(--forest); }
+  .step-item.done .step-label { color: var(--ink-light); }
+
+  .step-sub {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+
+  .step-connector {
+    width: 1px;
+    height: 14px;
+    background: var(--cream-3);
+    margin: 2px 0 2px 23px;
+  }
+
+  /* Current asset card */
+  .asset-card {
+    margin: 24px 16px 0;
+    background: var(--cream-1);
+    border: 1px solid var(--cream-3);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .asset-card-label {
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+
+  .asset-name {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--forest);
+    margin-bottom: 4px;
+  }
+
+  .asset-meta {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--ink-light);
+    line-height: 1.6;
+  }
+
+  .asset-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .asset-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* ── MAIN CONTENT ── */
+  .content {
+    padding: 48px 56px;
+    background: var(--cream-1);
+  }
+
+  /* Page heading */
+  .page-heading {
+    margin-bottom: 36px;
+  }
+
+  .page-title {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .page-subtitle {
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink-light);
+    line-height: 1.6;
+  }
+
+  /* Alert */
+  .alert {
+    background: rgba(183,136,44,0.08);
+    border: 1px solid rgba(183,136,44,0.25);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .alert-icon {
+    color: var(--gold);
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .alert-text {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  .alert-text strong { color: var(--gold); font-weight: 600; }
+
+  /* Two-col document layout */
+  .doc-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-bottom: 28px;
+  }
+
+  /* Document card (source) */
+  .doc-card {
+    background: var(--cream-0);
+    border: 1px solid var(--cream-3);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .doc-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--cream-2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .doc-card-title {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .doc-card-sub {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+
+  .doc-page-sim {
+    padding: 20px;
+    background: white;
+    border: 1px solid var(--cream-2);
+    margin: 16px;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-family: 'Georgia', serif;
+    font-size: 10px;
+    line-height: 1.9;
+    color: #222;
+    position: relative;
+    min-height: 240px;
+  }
+
+  .doc-page-sim h4 {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .doc-annotation {
+    background: rgba(183,136,44,0.15);
+    border-bottom: 1.5px solid var(--gold);
+    cursor: pointer;
+    position: relative;
+  }
+
+  .doc-annotation-red {
+    background: rgba(139,32,32,0.08);
+    border-bottom: 1.5px solid var(--red-warn);
+  }
+
+  /* Extracted fields card */
+  .fields-card {
+    background: var(--cream-0);
+    border: 1px solid var(--cream-3);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .fields-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--cream-2);
+    background: var(--cream-0);
+  }
+
+  .fields-section-title {
+    font-family: var(--serif);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-mid);
+    letter-spacing: 0.01em;
+    padding: 10px 20px 6px;
+    border-bottom: 1px solid var(--cream-2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 11px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    transition: background 0.1s;
+  }
+
+  .field-row:hover { background: var(--cream-1); }
+
+  .field-row.flag-row {
+    background: rgba(139,32,32,0.03);
+    border-left: 3px solid var(--red-warn);
+    padding-left: 17px;
+  }
+
+  .field-row.override-row {
+    background: var(--gold-pale);
+    border-left: 3px solid var(--gold);
+    padding-left: 17px;
+  }
+
+  .f-label {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--ink-light);
+    font-weight: 400;
+  }
+
+  .f-value {
+    font-family: var(--body);
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .f-value.overridden {
+    color: var(--gold);
+  }
+
+  .f-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .conf-chip {
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .conf-chip.high {
+    background: rgba(64,145,108,0.1);
+    color: var(--forest-mid);
+  }
+
+  .conf-chip.med {
+    background: rgba(183,136,44,0.12);
+    color: var(--gold);
+  }
+
+  .conf-chip.low {
+    background: var(--red-pale);
+    color: var(--red-warn);
+  }
+
+  .link-btn {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--forest-light);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(64,145,108,0.3);
+    transition: color 0.15s;
+  }
+
+  .link-btn:hover { color: var(--forest); }
+
+  /* Flag box */
+  .flag-box {
+    margin: 0 20px 16px;
+    background: var(--red-pale);
+    border: 1px solid rgba(139,32,32,0.15);
+    border-radius: 4px;
+    padding: 12px 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .flag-box-icon {
+    color: var(--red-warn);
+    font-size: 13px;
+    flex-shrink: 0;
+    font-family: var(--sans);
+    font-weight: 700;
+  }
+
+  .flag-box-text {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  .flag-box-text strong { color: var(--red-warn); }
+
+  .field-edit-input {
+    font-family: var(--body);
+    font-size: 13px;
+    color: var(--ink);
+    background: white;
+    border: 1px solid var(--gold);
+    border-radius: 3px;
+    padding: 4px 8px;
+    outline: none;
+    width: 140px;
+  }
+
+  /* Compliance section */
+  .compliance-section {
+    background: var(--cream-0);
+    border: 1px solid var(--cream-3);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+
+  .compliance-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--cream-2);
+  }
+
+  .compliance-row:last-child { border-bottom: none; }
+
+  .comp-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(27,67,50,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .comp-body { flex: 1; }
+
+  .comp-title {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--forest);
+    margin-bottom: 4px;
+  }
+
+  .comp-desc {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--ink-light);
+    line-height: 1.6;
+  }
+
+  .comp-tag {
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(27,67,50,0.08);
+    color: var(--forest-mid);
+    white-space: nowrap;
+    margin-top: 4px;
+  }
+
+  /* Bottom action area */
+  .action-area {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+  }
+
+  .action-note {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-style: italic;
+    max-width: 380px;
+    line-height: 1.5;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 22px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--cream-3);
+    color: var(--ink-light);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--ink-light);
+    color: var(--ink);
+  }
+
+  .btn-forest {
+    background: var(--forest);
+    color: white;
+    box-shadow: 0 2px 8px rgba(27,67,50,0.25);
+  }
+
+  .btn-forest:hover {
+    background: var(--forest-mid);
+    box-shadow: 0 4px 16px rgba(27,67,50,0.3);
+    transform: translateY(-1px);
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--cream-3);
+    margin: 24px 0;
+  }
+
+  /* Progress summary at top */
+  .progress-strip {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 32px;
+    background: var(--cream-0);
+    border: 1px solid var(--cream-3);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .prog-cell {
+    flex: 1;
+    padding: 14px 18px;
+    border-right: 1px solid var(--cream-2);
+    text-align: center;
+  }
+
+  .prog-cell:last-child { border-right: none; }
+
+  .prog-num {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .prog-num.forest { color: var(--forest); }
+  .prog-num.gold { color: var(--gold); }
+  .prog-num.warn { color: var(--red-warn); }
+
+  .prog-label {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="logo">
+      <span class="logo-wordmark">Tzero</span>
+      <div class="logo-sep"></div>
+      <span class="logo-sub">Asset Onboarding</span>
+    </div>
+    <div class="nav-links">
+      <span class="nav-link">Dashboard</span>
+      <span class="nav-link active">Onboarding</span>
+      <span class="nav-link">Submissions</span>
+    </div>
+    <div class="nav-firm">
+      <div class="nav-firm-dot"></div>
+      Gunderson Dettmer LLP
+    </div>
+  </nav>
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb">
+    <span>Onboarding</span>
+    <span class="sep">›</span>
+    <span>Acme Series B Preferred</span>
+    <span class="sep">›</span>
+    <span style="color:var(--ink);">Review AI Extraction</span>
+  </div>
+
+  <div class="page">
+
+    <!-- LEFT NAV -->
+    <div class="left-nav">
+      <div class="left-nav-section">
+        <div class="section-eyebrow">Onboarding Steps</div>
+        <div class="step-list">
+
+          <div class="step-item done">
+            <div class="step-circle">✓</div>
+            <div class="step-meta">
+              <div class="step-label">Asset Metadata</div>
+              <div class="step-sub">Completed Mar 26</div>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-item done">
+            <div class="step-circle">✓</div>
+            <div class="step-meta">
+              <div class="step-label">Term Sheet Upload</div>
+              <div class="step-sub">ACME_SERIES_B.PDF</div>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-item active">
+            <div class="step-circle">3</div>
+            <div class="step-meta">
+              <div class="step-label">Review Extraction</div>
+              <div class="step-sub">2 fields need review</div>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-item">
+            <div class="step-circle">4</div>
+            <div class="step-meta">
+              <div class="step-label">Tzero Compliance</div>
+              <div class="step-sub">Pending your submission</div>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-item">
+            <div class="step-circle">5</div>
+            <div class="step-meta">
+              <div class="step-label">Contract Review</div>
+              <div class="step-sub">Not started</div>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-item">
+            <div class="step-circle">6</div>
+            <div class="step-meta">
+              <div class="step-label">Deployment</div>
+              <div class="step-sub">Ethereum Mainnet</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="asset-card">
+        <div class="asset-card-label">Current Asset</div>
+        <div class="asset-name">Acme Series B Preferred</div>
+        <div class="asset-meta">
+          Equity · Acme Corporation<br>
+          Est. Valuation $42M<br>
+          Ref: EQ-2024-0041
+        </div>
+        <div class="asset-status">
+          <div class="asset-status-dot"></div>
+          In Review
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="content">
+
+      <div class="page-heading">
+        <div class="page-title">Review AI-Extracted Terms</div>
+        <div class="page-subtitle">Our AI has parsed your term sheet and extracted the fields below. Review each field carefully — any corrections you make are logged and reviewed by the Tzero compliance team.</div>
+      </div>
+
+      <!-- Alert -->
+      <div class="alert">
+        <span class="alert-icon">⚠</span>
+        <div class="alert-text">
+          <strong>2 fields require your attention</strong> before you can submit. The AI was uncertain about the Liquidation Preference multiplier and Anti-Dilution type. Please review and confirm or correct each.
+        </div>
+      </div>
+
+      <!-- Progress strip -->
+      <div class="progress-strip">
+        <div class="prog-cell">
+          <div class="prog-num">18</div>
+          <div class="prog-label">Fields extracted</div>
+        </div>
+        <div class="prog-cell">
+          <div class="prog-num forest">14</div>
+          <div class="prog-label">High confidence</div>
+        </div>
+        <div class="prog-cell">
+          <div class="prog-num gold">2</div>
+          <div class="prog-label">Needs review</div>
+        </div>
+        <div class="prog-cell">
+          <div class="prog-num gold">2</div>
+          <div class="prog-label">Overridden</div>
+        </div>
+      </div>
+
+      <!-- Document + Fields side by side -->
+      <div class="doc-layout">
+
+        <!-- Source document -->
+        <div class="doc-card">
+          <div class="doc-card-header">
+            <div>
+              <div class="doc-card-title">Source Document</div>
+              <div class="doc-card-sub">Showing page 3 of 14 · Highlights match extracted fields</div>
+            </div>
+            <button class="link-btn">View full PDF ↗</button>
+          </div>
+          <div style="padding:16px;">
+            <div class="doc-page-sim">
+              <h4>SERIES B PREFERRED STOCK TERM SHEET<br>ACME CORPORATION</h4>
+
+              <strong>VALUATION</strong><br>
+              <span class="doc-annotation">Pre-Money Valuation: $42,000,000</span><br>
+              Amount Raised: Up to $8,500,000<br>
+              Post-Money: $50,500,000<br><br>
+
+              <strong>DIVIDENDS</strong><br>
+              8% per annum, non-cumulative, when and if declared<br><br>
+
+              <strong>LIQUIDATION PREFERENCE</strong><br>
+              In the event of any liquidation or winding up, the holders
+              shall receive an amount per share equal to <span class="doc-annotation-red">1x [see §3.1 re: participating rights — language ambiguous]</span> the Original Issue Price...<br><br>
+
+              <strong>ANTI-DILUTION</strong><br>
+              <span class="doc-annotation-red">Standard weighted-average [broad-based or narrow? — not specified]</span> anti-dilution provisions shall apply...<br>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extracted fields -->
+        <div class="fields-card">
+          <div class="fields-card-header">
+            <div class="doc-card-title">Extracted Parameters</div>
+            <div class="doc-card-sub">Edit any field · All changes are logged</div>
+          </div>
+
+          <div class="fields-section-title">
+            Valuation & Economics
+            <span style="font-family:var(--sans);font-size:11px;color:var(--forest-light);font-weight:400;">All verified ✓</span>
+          </div>
+
+          <div class="field-row">
+            <div class="f-label">Pre-Money Valuation</div>
+            <div class="f-value">$42,000,000</div>
+            <div class="f-actions">
+              <span class="conf-chip high">94%</span>
+              <button class="link-btn">Edit</button>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="f-label">Investment Amount</div>
+            <div class="f-value">$8,500,000</div>
+            <div class="f-actions">
+              <span class="conf-chip high">97%</span>
+              <button class="link-btn">Edit</button>
+            </div>
+          </div>
+          <div class="field-row override-row">
+            <div class="f-label">Liquidation Preference</div>
+            <div class="f-value overridden">1.5x Non-Participating</div>
+            <div class="f-actions">
+              <span class="conf-chip med">61%</span>
+              <button class="link-btn">Undo override</button>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="f-label">Option Pool</div>
+            <div class="f-value">10% pre-money</div>
+            <div class="f-actions">
+              <span class="conf-chip high">89%</span>
+              <button class="link-btn">Edit</button>
+            </div>
+          </div>
+
+          <div class="fields-section-title">
+            Investor Rights
+            <span style="font-family:var(--sans);font-size:11px;color:var(--red-warn);font-weight:500;">1 needs review</span>
+          </div>
+
+          <div class="field-row">
+            <div class="f-label">Pro-Rata Rights</div>
+            <div class="f-value">Yes — Major Investors</div>
+            <div class="f-actions">
+              <span class="conf-chip high">92%</span>
+              <button class="link-btn">Edit</button>
+            </div>
+          </div>
+          <div class="field-row flag-row">
+            <div class="f-label">Anti-Dilution</div>
+            <input class="field-edit-input" value="Broad-Based Weighted Avg." />
+            <div class="f-actions">
+              <span class="conf-chip low">31%</span>
+              <button class="link-btn" style="color:var(--forest);font-weight:600;">Confirm</button>
+            </div>
+          </div>
+          <div style="margin:0 20px 12px;">
+            <div class="flag-box">
+              <span class="flag-box-icon">!</span>
+              <div class="flag-box-text">The document reads "standard weighted-average" without specifying broad-based or narrow-based. <strong>Please confirm the correct interpretation</strong> with your client before proceeding.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Compliance detected -->
+      <div class="compliance-section">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--cream-2);">
+          <div class="doc-card-title">Compliance Flags Detected by AI</div>
+          <div class="doc-card-sub">These rules will be encoded into the smart contract</div>
+        </div>
+        <div class="compliance-row">
+          <div class="comp-icon">⚖</div>
+          <div class="comp-body">
+            <div class="comp-title">Regulation D / Rule 506(b) — Accredited Investors Only</div>
+            <div class="comp-desc">The AI detected an accredited investor restriction in §4.2. The generated ERC-3643 contract will enforce identity verification before any token transfer. An investor whitelist must be populated prior to trading activation.</div>
+          </div>
+          <div><div class="comp-tag">Auto-encoded</div></div>
+        </div>
+        <div class="compliance-row">
+          <div class="comp-icon">🔒</div>
+          <div class="comp-body">
+            <div class="comp-title">Transfer Restriction — 12-Month Lock-Up</div>
+            <div class="comp-desc">Standard Reg D Rule 144 lock-up of 12 months from issuance will be encoded as a time-lock in the contract transfer module.</div>
+          </div>
+          <div><div class="comp-tag">Auto-encoded</div></div>
+        </div>
+      </div>
+
+      <!-- Action area -->
+      <div class="action-area">
+        <div class="action-note">
+          Once submitted, a Tzero compliance reviewer will verify your extraction. You'll be notified by email when their review is complete.
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-outline">Save Draft</button>
+          <button class="btn btn-forest">Submit for Compliance Review →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

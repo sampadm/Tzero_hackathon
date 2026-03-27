@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #000000;
+  --deep: #080808;
+  --surface: #0f0f0f;
+  --card: #141414;
+  --border: #1e1e1e;
+  --border-subtle: #2a2a2a;
+  --muted: #3a3a3a;
+  --text-dim: #6b7280;
+  --text-secondary: #9ca3af;
+  --text-primary: #f3f4f6;
+  --emerald: #20f554;
+  --emerald-dim: rgba(32, 245, 84, 0.12);
+  --emerald-border: rgba(32, 245, 84, 0.25);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.12);
+  --danger: #f87171;
+  --danger-dim: rgba(248, 113, 113, 0.12);
+  --info: #60a5fa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--void);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--deep); }
+::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+:focus-visible { outline: 2px solid var(--emerald); outline-offset: 2px; }
+::selection { background: var(--emerald-dim); color: var(--emerald); }
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+}

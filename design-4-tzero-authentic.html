@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tzero BYOA — Design 4: Tzero Authentic</title>
+<style>
+  :root {
+    /* Tzero exact brand values */
+    --emerald:        #20f554;
+    --emerald-light:  #90eda5;
+    --emerald-dark:   #0dc43d;
+    --emerald-dim:    rgba(32, 245, 84, 0.08);
+    --emerald-glow:   rgba(32, 245, 84, 0.18);
+    --emerald-border: rgba(32, 245, 84, 0.22);
+
+    /* Backgrounds */
+    --void:      #000000;
+    --deep:      #080808;
+    --surface:   #0f0f0f;
+    --surface-2: #161616;
+    --surface-3: #1e1e1e;
+    --surface-4: #262626;
+
+    /* Borders */
+    --edge:        rgba(255,255,255,0.07);
+    --edge-2:      rgba(255,255,255,0.12);
+    --edge-3:      rgba(255,255,255,0.18);
+
+    /* Text */
+    --white:   #ffffff;
+    --text-1:  #e5e5e5;
+    --text-2:  #a3a3a3;
+    --text-3:  #737373;
+    --text-4:  #404040;
+
+    /* Status */
+    --warn:      #f59e0b;
+    --warn-dim:  rgba(245,158,11,0.1);
+    --danger:    #f87171;
+    --danger-dim: rgba(248,113,113,0.08);
+
+    /* Type: Tzero uses system UI stack */
+    --font: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--void);
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 14px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    height: 60px;
+    background: var(--void);
+    border-bottom: 1px solid var(--edge);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Exact Tzero logo style — wordmark with "t" lowercased */
+  .logo-wordmark {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+
+  .logo-wordmark em {
+    font-style: normal;
+    color: var(--emerald);
+  }
+
+  .logo-pipe {
+    width: 1px;
+    height: 18px;
+    background: var(--edge-2);
+  }
+
+  .logo-module {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Top nav tabs */
+  .topnav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .topnav-item {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-3);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.01em;
+  }
+
+  .topnav-item:hover { color: var(--text-1); background: var(--surface-2); }
+  .topnav-item.active { color: var(--white); font-weight: 500; }
+
+  /* Top right */
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .net-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    background: var(--surface);
+    border: 1px solid var(--edge-2);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: 0.02em;
+  }
+
+  .net-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 5px var(--emerald);
+  }
+
+  .user-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface-3);
+    border: 1px solid var(--edge-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--emerald);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── PAGE SHELL ── */
+  .page-shell {
+    display: grid;
+    grid-template-columns: 52px 1fr 360px;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+  }
+
+  /* ── ICON RAIL ── */
+  .icon-rail {
+    border-right: 1px solid var(--edge);
+    background: var(--deep);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 2px;
+  }
+
+  .ri {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-4);
+    transition: all 0.15s;
+  }
+
+  .ri:hover { background: var(--surface-2); color: var(--text-2); }
+
+  .ri.active {
+    background: var(--emerald-dim);
+    color: var(--emerald);
+  }
+
+  .ri svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ── MAIN FLOW ── */
+  .main-flow {
+    overflow-y: auto;
+    padding: 28px 32px;
+    background: var(--void);
+  }
+
+  /* Step progress */
+  .step-track {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    position: relative;
+    padding-bottom: 4px;
+  }
+
+  .st-line {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    right: 13px;
+    height: 1px;
+    background: var(--edge-2);
+  }
+
+  .st-progress {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    width: 34%;
+    height: 1px;
+    background: var(--emerald);
+    box-shadow: 0 0 6px var(--emerald-glow);
+  }
+
+  .st-node {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    position: relative;
+    z-index: 2;
+    cursor: default;
+  }
+
+  .st-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--deep);
+    border: 1px solid var(--edge-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-4);
+    transition: all 0.2s;
+  }
+
+  .st-node.done .st-circle {
+    background: var(--emerald);
+    border-color: var(--emerald);
+    color: #000;
+    font-size: 11px;
+  }
+
+  .st-node.active .st-circle {
+    background: var(--surface-3);
+    border-color: var(--emerald);
+    color: var(--emerald);
+    box-shadow: 0 0 0 3px var(--emerald-dim);
+  }
+
+  .st-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-4);
+    text-align: center;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  .st-node.done .st-label { color: var(--text-3); }
+  .st-node.active .st-label { color: var(--emerald); }
+
+  /* Page header */
+  .page-header {
+    margin-bottom: 24px;
+  }
+
+  .page-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--emerald);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .page-desc {
+    font-size: 13px;
+    color: var(--text-3);
+    line-height: 1.65;
+    max-width: 560px;
+    font-weight: 400;
+  }
+
+  /* Alert */
+  .alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--warn-dim);
+    border: 1px solid rgba(245,158,11,0.18);
+    border-radius: 8px;
+    margin-bottom: 22px;
+  }
+
+  .alert-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--warn);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .alert-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+
+  .alert-msg {
+    font-size: 13px;
+    color: var(--text-1);
+    line-height: 1.55;
+  }
+
+  .alert-msg strong { color: var(--warn); font-weight: 600; }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.15s;
+  }
+
+  .stat-box.highlight {
+    border-color: var(--emerald-border);
+    background: var(--emerald-dim);
+  }
+
+  .stat-num {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-num.green { color: var(--emerald); }
+  .stat-num.warn { color: var(--warn); }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  /* ── FIELD GROUPS ── */
+  .field-group {
+    margin-bottom: 20px;
+  }
+
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--edge);
+  }
+
+  .group-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    flex: 1;
+  }
+
+  .group-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+
+  .gb-ok {
+    background: var(--emerald-dim);
+    color: var(--emerald);
+    border: 1px solid var(--emerald-border);
+  }
+
+  .gb-warn {
+    background: var(--warn-dim);
+    color: var(--warn);
+    border: 1px solid rgba(245,158,11,0.2);
+  }
+
+  /* Field rows */
+  .field-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 80px 90px 32px;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    background: var(--surface);
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+    margin-bottom: 4px;
+    transition: all 0.15s;
+  }
+
+  .field-row:hover {
+    border-color: var(--edge-2);
+    background: var(--surface-2);
+  }
+
+  .field-row.flagged {
+    border-color: rgba(245,158,11,0.2);
+    background: rgba(245,158,11,0.04);
+  }
+
+  .field-row.overridden {
+    border-color: var(--emerald-border);
+    background: var(--emerald-dim);
+  }
+
+  .fr-label {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  .fr-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .fr-value.green { color: var(--emerald); }
+  .fr-value.warn { color: var(--warn); }
+
+  .fr-override-note {
+    font-size: 10px;
+    color: var(--emerald);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  /* Confidence ring */
+  .cring {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .cring svg { transform: rotate(-90deg); display: block; }
+
+  .cr-bg {
+    fill: none;
+    stroke: var(--surface-4);
+    stroke-width: 2.5;
+  }
+
+  .cr-fill {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  .cr-high .cr-fill { stroke: var(--emerald); }
+  .cr-med .cr-fill  { stroke: var(--warn); }
+  .cr-low .cr-fill  { stroke: var(--danger); }
+
+  .cr-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  /* Status chip */
+  .chip {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .chip-green {
+    background: var(--emerald-dim);
+    color: var(--emerald);
+    border: 1px solid var(--emerald-border);
+  }
+
+  .chip-warn {
+    background: var(--warn-dim);
+    color: var(--warn);
+    border: 1px solid rgba(245,158,11,0.2);
+  }
+
+  .chip-override {
+    background: var(--emerald-dim);
+    color: var(--emerald);
+    border: 1px solid var(--emerald-border);
+  }
+
+  /* Icon action button */
+  .act-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    background: var(--surface-3);
+    border: 1px solid var(--edge);
+    color: var(--text-3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .act-btn:hover {
+    background: var(--surface-4);
+    border-color: var(--edge-2);
+    color: var(--white);
+  }
+
+  .act-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+
+  /* Flag expand area */
+  .flag-expand {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(245,158,11,0.12);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .flag-expand svg { width: 14px; height: 14px; stroke: var(--warn); fill: none; stroke-width: 1.5; flex-shrink: 0; margin-top: 1px; }
+
+  .flag-expand-text {
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  .flag-expand-text strong { color: var(--warn); }
+
+  .field-edit {
+    background: var(--surface-3);
+    border: 1px solid var(--emerald-border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--emerald);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    width: 100%;
+    transition: box-shadow 0.15s;
+  }
+
+  .field-edit:focus {
+    box-shadow: 0 0 0 3px var(--emerald-dim);
+    border-color: var(--emerald);
+  }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    border-left: 1px solid var(--edge);
+    background: var(--deep);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .rp-block {
+    padding: 20px 22px;
+    border-bottom: 1px solid var(--edge);
+  }
+
+  .rp-heading {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+
+  /* Asset card — Tzero-style dark card with emerald accent */
+  .asset-card {
+    background: var(--surface-2);
+    border: 1px solid var(--edge-2);
+    border-radius: 10px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .asset-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--emerald);
+    box-shadow: 0 0 12px var(--emerald-glow);
+  }
+
+  .asset-type-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--emerald);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .asset-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--emerald);
+  }
+
+  .asset-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .asset-firm {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-bottom: 14px;
+  }
+
+  .asset-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--edge);
+  }
+
+  .ag-item {}
+
+  .ag-label {
+    font-size: 10px;
+    color: var(--text-4);
+    font-weight: 400;
+    margin-bottom: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .ag-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.01em;
+  }
+
+  .ag-value.green {
+    color: var(--emerald);
+    font-size: 12px;
+  }
+
+  /* Compliance list */
+  .comp-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--edge);
+  }
+
+  .comp-row:last-child { border-bottom: none; }
+
+  .comp-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 5px var(--emerald);
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .comp-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-1);
+    margin-bottom: 3px;
+  }
+
+  .comp-desc {
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.55;
+  }
+
+  /* Timeline */
+  .tl-row {
+    display: flex;
+    gap: 10px;
+    padding: 7px 0;
+    position: relative;
+  }
+
+  .tl-row:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 16px;
+    bottom: -4px;
+    width: 1px;
+    background: var(--edge);
+  }
+
+  .tl-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .tl-action {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-1);
+    line-height: 1.4;
+  }
+
+  .tl-time {
+    font-size: 10px;
+    color: var(--text-4);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  /* ── CTA BLOCK ── */
+  .cta-block {
+    padding: 20px 22px;
+    margin-top: auto;
+    border-top: 1px solid var(--edge);
+  }
+
+  /* Tzero-style primary button: dark bg, emerald text + border, hover fills emerald */
+  .btn-primary {
+    width: 100%;
+    padding: 13px 20px;
+    background: var(--emerald);
+    color: #000000;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .btn-primary:hover {
+    background: var(--emerald-light);
+    box-shadow: 0 4px 20px var(--emerald-glow);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 11px 20px;
+    background: transparent;
+    color: var(--text-3);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--edge-2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.01em;
+  }
+
+  .btn-secondary:hover {
+    color: var(--white);
+    border-color: var(--edge-3);
+    background: var(--surface-2);
+  }
+
+  .cta-note {
+    font-size: 11px;
+    color: var(--text-4);
+    text-align: center;
+    margin-top: 10px;
+    line-height: 1.55;
+  }
+
+  /* ── FLOATING ACTION BAR ── */
+  .fab {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-22%); /* offset right to avoid right panel */
+    background: var(--surface-2);
+    border: 1px solid var(--edge-2);
+    border-radius: 40px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 200;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+
+  .fab-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-3);
+    padding: 0 4px;
+  }
+
+  .fab-warn-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--warn);
+    box-shadow: 0 0 5px rgba(245,158,11,0.6);
+    animation: blink 1.5s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+
+  .fab-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--edge-2);
+  }
+
+  .fab-btn {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    letter-spacing: 0.01em;
+  }
+
+  .fab-btn-ghost {
+    background: var(--surface-3);
+    color: var(--text-3);
+  }
+
+  .fab-btn-ghost:hover { color: var(--white); }
+
+  .fab-btn-cta {
+    background: var(--emerald);
+    color: #000;
+    font-weight: 700;
+  }
+
+  .fab-btn-cta:hover {
+    background: var(--emerald-light);
+    box-shadow: 0 0 12px var(--emerald-glow);
+  }
+
+  /* Divider label inside group */
+  .group-field-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <span class="logo-wordmark">t<em>ZERO</em></span>
+      <div class="logo-pipe"></div>
+      <span class="logo-module">Asset Onboarding</span>
+    </div>
+
+    <nav class="topnav">
+      <div class="topnav-item">Dashboard</div>
+      <div class="topnav-item active">Onboarding</div>
+      <div class="topnav-item">Submissions</div>
+      <div class="topnav-item">Documents</div>
+    </nav>
+
+    <div class="topbar-right">
+      <div class="net-chip">
+        <div class="net-dot"></div>
+        Ethereum Mainnet
+      </div>
+      <div class="user-btn">JH</div>
+    </div>
+  </header>
+
+  <div class="page-shell">
+
+    <!-- ICON RAIL -->
+    <aside class="icon-rail">
+      <div class="ri">
+        <svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+      </div>
+      <div class="ri active">
+        <svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h6M3 12h8"/></svg>
+      </div>
+      <div class="ri">
+        <svg viewBox="0 0 16 16"><path d="M4 13V6l4-3 4 3v7"/><path d="M6 13V9h4v4"/></svg>
+      </div>
+      <div class="ri">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5"/><path d="M8 5v3l2 2"/></svg>
+      </div>
+    </aside>
+
+    <!-- MAIN FLOW -->
+    <main class="main-flow">
+
+      <!-- Step progress track -->
+      <div class="step-track">
+        <div class="st-line"></div>
+        <div class="st-progress"></div>
+        <div class="st-node done">
+          <div class="st-circle">✓</div>
+          <div class="st-label">Metadata</div>
+        </div>
+        <div class="st-node done">
+          <div class="st-circle">✓</div>
+          <div class="st-label">Upload</div>
+        </div>
+        <div class="st-node active">
+          <div class="st-circle">3</div>
+          <div class="st-label">Review</div>
+        </div>
+        <div class="st-node">
+          <div class="st-circle">4</div>
+          <div class="st-label">Compliance</div>
+        </div>
+        <div class="st-node">
+          <div class="st-circle">5</div>
+          <div class="st-label">Contract</div>
+        </div>
+        <div class="st-node">
+          <div class="st-circle">6</div>
+          <div class="st-label">Deploy</div>
+        </div>
+      </div>
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div class="page-eyebrow">Step 3 of 6</div>
+        <div class="page-title">Review AI-Extracted Terms</div>
+        <div class="page-desc">Our AI has parsed your term sheet and extracted the parameters below. Confirm or correct each field before submitting for Tzero compliance review. All edits are logged and auditable.</div>
+      </div>
+
+      <!-- Alert -->
+      <div class="alert">
+        <div class="alert-icon">
+          <svg viewBox="0 0 18 18"><path d="M9 2L1 15h16L9 2z"/><path d="M9 8v3M9 13v.5"/></svg>
+        </div>
+        <div class="alert-msg"><strong>2 fields require attention</strong> — the AI flagged low confidence on Liquidation Preference and Anti-Dilution. Please review before submitting.</div>
+      </div>
+
+      <!-- Stats bar -->
+      <div class="stats-bar">
+        <div class="stat-box">
+          <div class="stat-num">18</div>
+          <div class="stat-label">Fields extracted</div>
+        </div>
+        <div class="stat-box highlight">
+          <div class="stat-num green">14</div>
+          <div class="stat-label">High confidence</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num warn">2</div>
+          <div class="stat-label">Need review</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num green">2</div>
+          <div class="stat-label">Overridden</div>
+        </div>
+      </div>
+
+      <!-- Group: Valuation & Economics -->
+      <div class="field-group">
+        <div class="group-header">
+          <div class="group-title">Valuation &amp; Economics</div>
+          <span class="group-badge gb-ok">All verified</span>
+        </div>
+        <div class="group-field-area">
+
+          <div class="field-row">
+            <div class="fr-label">Pre-Money Valuation</div>
+            <div>
+              <div class="fr-value">$42,000,000</div>
+            </div>
+            <div class="cring cr-high">
+              <svg width="36" height="36" viewBox="0 0 36 36">
+                <circle class="cr-bg" cx="18" cy="18" r="14"/>
+                <circle class="cr-fill" cx="18" cy="18" r="14" stroke-dasharray="87.96" stroke-dashoffset="5.28"/>
+              </svg>
+              <div class="cr-num">94%</div>
+            </div>
+            <span class="chip chip-green">VERIFIED</span>
+            <div class="act-btn">
+              <svg viewBox="0 0 12 12"><path d="M1 10l3-1 6-6-2-2-6 6-1 3z"/></svg>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="fr-label">Investment Amount</div>
+            <div>
+              <div class="fr-value">$8,500,000</div>
+            </div>
+            <div class="cring cr-high">
+              <svg width="36" height="36" viewBox="0 0 36 36">
+                <circle class="cr-bg" cx="18" cy="18" r="14"/>
+                <circle class="cr-fill" cx="18" cy="18" r="14" stroke-dasharray="87.96" stroke-dashoffset="2.64"/>
+              </svg>
+              <div class="cr-num">97%</div>
+            </div>
+            <span class="chip chip-green">VERIFIED</span>
+            <div class="act-btn">
+              <svg viewBox="0 0 12 12"><path d="M1 10l3-1 6-6-2-2-6 6-1 3z"/></svg>
+            </div>
+          </div>
+
+          <div class="field-row overridden">
+            <div class="fr-label">Liquidation Preference</div>
+            <div>
+              <div class="fr-value green">1.5x Non-Participating</div>
+              <div class="fr-override-note">↑ Overridden from "1x" (AI extracted)</div>
+            </div>
+            <div class="cring cr-med">
+              <svg width="36" height="36" viewBox="0 0 36 36">
+                <circle class="cr-bg" cx="18" cy="18" r="14"/>
+                <circle class="cr-fill" cx="18" cy="18" r="14" stroke-dasharray="87.96" stroke-dashoffset="34.30"/>
+              </svg>
+              <div class="cr-num">61%</div>
+            </div>
+            <span class="chip chip-override">OVERRIDE</span>
+            <div class="act-btn">
+              <svg viewBox="0 0 12 12"><path d="M9 1L1 9M1 1l8 8"/></svg>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="fr-label">Option Pool Size</div>
+            <div>
+              <div class="fr-value">10% pre-money</div>
+            </div>
+            <div class="cring cr-high">
+              <svg width="36" height="36" viewBox="0 0 36 36">
+                <circle class="cr-bg" cx="18" cy="18" r="14"/>
+                <circle class="cr-fill" cx="18" cy="18" r="14" stroke-dasharray="87.96" stroke-dashoffset="9.68"/>
+              </svg>
+              <div class="cr-num">89%</div>
+            </div>
+            <span class="chip chip-green">VERIFIED</span>
+            <div class="act-btn">
+              <svg viewBox="0 0 12 12"><path d="M1 10l3-1 6-6-2-2-6 6-1 3z"/></svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Group: Investor Rights -->
+      <div class="field-group">
+        <div class="group-header">
+          <div class="group-title">Investor Rights</div>
+          <span class="group-badge gb-warn">1 needs review</span>
+        </div>
+        <div class="group-field-area">
+
+          <div class="field-row">
+            <div class="fr-label">Pro-Rata Rights</div>
+            <div>
+              <div class="fr-value">Yes — Major Investors</div>
+            </div>
+            <div class="cring cr-high">
+              <svg width="36" height="36" viewBox="0 0 36 36">
+                <circle class="cr-bg" cx="18" cy="18" r="14"/>
+                <circle class="cr-fill" cx="18" cy="18" r="14" stroke-dasharray="87.96" stroke-dashoffset="7.04"/>
+              </svg>
+              <div class="cr-num">92%</div>
+            </div>
+            <span class="chip chip-green">VERIFIED</span>
+            <div class="act-btn">
+              <svg viewBox="0 0 12 12"><path d="M1 10l3-1 6-6-2-2-6 6-1 3z"/></svg>
+            </div>
+          </div>
+
+          <!-- Flagged field — expanded -->
+          <div class="field-row flagged" style="display: block; padding-bottom: 14px;">
+            <div style="display: grid; grid-template-columns: 200px 1fr 80px 90px 32px; align-items: center; gap: 12px;">
+              <div class="fr-label">Anti-Dilution Provision</div>
+              <div>
+                <input class="field-edit" value="Broad-Based Weighted Avg." />
+              </div>
+              <div class="cring cr-low">
+                <svg width="36" height="36" viewBox="0 0 36 36">
+                  <circle class="cr-bg" cx="18" cy="18" r="14"/>
+                  <circle class="cr-fill" cx="18" cy="18" r="14" stroke-dasharray="87.96" stroke-dashoffset="61.57"/>
+                </svg>
+                <div class="cr-num">31%</div>
+              </div>
+              <span class="chip chip-warn">REVIEW</span>
+              <div class="act-btn" style="border-color: rgba(32,245,84,0.3); color: var(--emerald);">
+                <svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg>
+              </div>
+            </div>
+            <div class="flag-expand">
+              <svg viewBox="0 0 14 14"><path d="M7 2L1 11h12L7 2z"/><path d="M7 6v3M7 10.5v.5"/></svg>
+              <div class="flag-expand-text">
+                The document states "standard weighted-average" without specifying <strong>broad-based or narrow-based</strong>. Confirm the correct type with your client before proceeding. This field will directly affect the contract logic.
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="fr-label">Board Representation</div>
+            <div>
+              <div class="fr-value">1 Seat — Lead Investor</div>
+            </div>
+            <div class="cring cr-high">
+              <svg width="36" height="36" viewBox="0 0 36 36">
+                <circle class="cr-bg" cx="18" cy="18" r="14"/>
+                <circle class="cr-fill" cx="18" cy="18" r="14" stroke-dasharray="87.96" stroke-dashoffset="10.55"/>
+              </svg>
+              <div class="cr-num">88%</div>
+            </div>
+            <span class="chip chip-green">VERIFIED</span>
+            <div class="act-btn">
+              <svg viewBox="0 0 12 12"><path d="M1 10l3-1 6-6-2-2-6 6-1 3z"/></svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel">
+
+      <!-- Asset info -->
+      <div class="rp-block">
+        <div class="rp-heading">Current Asset</div>
+        <div class="asset-card">
+          <div class="asset-type-tag">
+            <div class="asset-dot"></div>
+            Series B Preferred Equity
+          </div>
+          <div class="asset-name">Acme Corporation</div>
+          <div class="asset-firm">Gunderson Dettmer LLP · J. Hartwell</div>
+          <div class="asset-grid">
+            <div class="ag-item">
+              <div class="ag-label">Valuation</div>
+              <div class="ag-value">$42M</div>
+            </div>
+            <div class="ag-item">
+              <div class="ag-label">Raise</div>
+              <div class="ag-value">$8.5M</div>
+            </div>
+            <div class="ag-item">
+              <div class="ag-label">Standard</div>
+              <div class="ag-value green">ERC-3643</div>
+            </div>
+            <div class="ag-item">
+              <div class="ag-label">Ref</div>
+              <div class="ag-value" style="font-size:12px; font-weight:500; color:var(--text-3);">EQ-2024-0041</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compliance detected -->
+      <div class="rp-block">
+        <div class="rp-heading">Compliance Auto-Detected</div>
+        <div class="comp-row">
+          <div class="comp-indicator"></div>
+          <div>
+            <div class="comp-title">Reg D Rule 506(b)</div>
+            <div class="comp-desc">Accredited investor gate — ERC-3643 identity module will restrict all token transfers to verified investors.</div>
+          </div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-indicator"></div>
+          <div>
+            <div class="comp-title">Rule 144 Lock-Up · 12 months</div>
+            <div class="comp-desc">Transfer time-lock encoded from issuance date per standard Reg D holding period.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit log -->
+      <div class="rp-block">
+        <div class="rp-heading">Activity</div>
+        <div class="tl-row">
+          <div class="tl-dot" style="background: var(--emerald); box-shadow: 0 0 5px var(--emerald);"></div>
+          <div>
+            <div class="tl-action">PDF uploaded</div>
+            <div class="tl-time">Today · 14:22 UTC</div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-dot" style="background: var(--emerald);"></div>
+          <div>
+            <div class="tl-action">AI extraction complete — 18 fields</div>
+            <div class="tl-time">Today · 14:23 UTC</div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-dot" style="background: var(--emerald);"></div>
+          <div>
+            <div class="tl-action">Override: Liquidation Pref. → 1.5x</div>
+            <div class="tl-time">Today · 14:31 UTC</div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-dot" style="background: var(--warn); animation: blink 1.5s infinite;"></div>
+          <div>
+            <div class="tl-action" style="color: var(--warn);">Pending: Anti-Dilution confirmation</div>
+            <div class="tl-time">Awaiting your input</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-block">
+        <button class="btn-primary">
+          Submit for Compliance Review
+          <svg viewBox="0 0 14 14"><path d="M2 7h10M7 2l5 5-5 5"/></svg>
+        </button>
+        <button class="btn-secondary">Save Draft</button>
+        <div class="cta-note">A Tzero compliance reviewer will be notified. You'll receive an email when their review is complete.</div>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- Floating action bar -->
+  <div class="fab">
+    <div class="fab-status">
+      <div class="fab-warn-dot"></div>
+      2 fields pending review
+    </div>
+    <div class="fab-divider"></div>
+    <button class="fab-btn fab-btn-ghost">Save Draft</button>
+    <button class="fab-btn fab-btn-cta">Submit for Review →</button>
+  </div>
+
+</body>
+</html>
