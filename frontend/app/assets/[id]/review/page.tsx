@@ -33,12 +33,28 @@ function FieldRow({
   const [editVal, setEditVal] = useState(field.display_value ?? "");
   const [editReason, setEditReason] = useState("");
 
+  const isLow = field.confidence === "LOW";
+  const isMedium = field.confidence === "MEDIUM";
+  const rowBg = field.confirmed
+    ? "rgba(32,245,84,0.03)"
+    : isLow
+      ? "rgba(248,113,113,0.06)"
+      : isMedium
+        ? "rgba(245,158,11,0.04)"
+        : "transparent";
+  const confirmColor = isLow
+    ? { bg: "var(--danger-dim)", border: "var(--danger)", text: "var(--danger)" }
+    : isMedium
+      ? { bg: "var(--amber-dim)", border: "var(--amber)", text: "var(--amber)" }
+      : { bg: "var(--emerald-dim)", border: "var(--emerald-border)", text: "var(--emerald)" };
+
   return (
     <div
       style={{
         padding: "14px 20px",
         borderBottom: "1px solid var(--border)",
-        background: field.confirmed ? "rgba(32,245,84,0.03)" : "transparent",
+        background: rowBg,
+        borderLeft: !field.confirmed && isLow ? "3px solid var(--danger)" : "3px solid transparent",
       }}
     >
       <div
@@ -194,7 +210,7 @@ function FieldRow({
                 color: "var(--text-dim)",
                 fontStyle: "italic",
                 paddingLeft: 8,
-                borderLeft: "2px solid var(--border)",
+                borderLeft: `2px solid ${isLow ? "var(--danger)" : isMedium ? "var(--amber)" : "var(--border)"}`,
               }}
             >
               "{field.source_quote}"
@@ -208,9 +224,9 @@ function FieldRow({
               <button
                 onClick={() => onConfirm(field.id)}
                 style={{
-                  background: "var(--emerald-dim)",
-                  border: "1px solid var(--emerald-border)",
-                  color: "var(--emerald)",
+                  background: confirmColor.bg,
+                  border: `1px solid ${confirmColor.border}`,
+                  color: confirmColor.text,
                   borderRadius: 6,
                   padding: "5px 12px",
                   fontSize: 12,
