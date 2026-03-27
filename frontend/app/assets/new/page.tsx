@@ -49,7 +49,7 @@ export default function NewAssetPage() {
     setLoading(true);
     try {
       await uploadPdf(assetId, file);
-      setStep(3);
+      router.push(`/assets/${assetId}/review`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
