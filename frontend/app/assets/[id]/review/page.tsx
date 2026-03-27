@@ -30,7 +30,7 @@ function FieldRow({
   onOverride: (id: string, val: string, reason: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const [editVal, setEditVal] = useState(field.display_value);
+  const [editVal, setEditVal] = useState(field.display_value ?? "");
   const [editReason, setEditReason] = useState("");
 
   return (
@@ -155,7 +155,7 @@ function FieldRow({
                 <button
                   onClick={() => {
                     setEditing(false);
-                    setEditVal(field.display_value);
+                    setEditVal(field.display_value ?? "");
                   }}
                   style={{
                     background: "none",
