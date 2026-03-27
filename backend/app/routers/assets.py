@@ -113,6 +113,7 @@ def upload_pdf(asset_id: str, file: UploadFile = File(...),
         uploaded_by=current_user.id,
     )
     db.add(upload)
+    db.flush()  # assign upload.id before referencing it
 
     run = ExtractionRun(asset_id=asset_id, pdf_upload_id=upload.id,
                         status="queued", claude_model="claude-sonnet-4-6")
