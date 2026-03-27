@@ -16,7 +16,6 @@ export default function ContractPage() {
   const router = useRouter();
   const params = useParams();
   const assetId = String(params.id);
-  const role = getRole();
 
   const [asset, setAsset] = useState<AssetOut | null>(null);
   const [contract, setContract] = useState<GeneratedContractOut | null>(null);
@@ -25,6 +24,9 @@ export default function ContractPage() {
   const [error, setError] = useState("");
   const [showCode, setShowCode] = useState(false);
   const [polling, setPolling] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => { setRole(getRole()); }, []);
 
   const load = useCallback(async () => {
     try {

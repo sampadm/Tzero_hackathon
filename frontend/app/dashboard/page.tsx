@@ -52,13 +52,14 @@ export default function DashboardPage() {
   const router = useRouter();
   const [assets, setAssets] = useState<AssetOut[]>([]);
   const [loading, setLoading] = useState(true);
-  const role = getRole();
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoggedIn()) {
       router.replace("/login");
       return;
     }
+    setRole(getRole());
     getAssets()
       .then(setAssets)
       .catch(console.error)
