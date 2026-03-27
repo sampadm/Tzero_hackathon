@@ -19,7 +19,7 @@ const CONFIDENCE_COLOR: Record<string, string> = {
 export default function ReviewDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const itemId = Number(params.id);
+  const itemId = String(params.id);
 
   const [item, setItem] = useState<ComplianceDetail | null>(null);
   const [loading, setLoading] = useState(true);

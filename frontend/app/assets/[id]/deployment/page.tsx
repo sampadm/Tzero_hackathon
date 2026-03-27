@@ -20,7 +20,7 @@ function truncate(s: string | null | undefined, n = 12): string {
 export default function DeploymentPage() {
   const router = useRouter();
   const params = useParams();
-  const assetId = Number(params.id);
+  const assetId = String(params.id);
 
   const [asset, setAsset] = useState<AssetOut | null>(null);
   const [deployment, setDeployment] = useState<DeploymentOut | null>(null);

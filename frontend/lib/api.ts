@@ -21,7 +21,12 @@ async function request<T>(
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail ?? "Request failed");
+    const detail = Array.isArray(err.detail)
+      ? err.detail.map((e: { msg?: string }) => e.msg ?? JSON.stringify(e)).join("; ")
+      : typeof err.detail === "string"
+        ? err.detail
+        : "Request failed";
+    throw new Error(detail);
   }
   return res.json() as Promise<T>;
 }
@@ -36,10 +41,10 @@ export function login(email: string, password: string) {
 
 // ── Assets ──────────────────────────────────────────────────────────────────
 export interface AssetOut {
-  id: number;
+  id: string;
+  ref_number: string;
   name: string;
-  ticker: string;
-  asset_type: string;
+  company_name: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -51,8 +56,8 @@ export function getAssets() {
 
 export function createAsset(data: {
   name: string;
-  ticker: string;
-  asset_type: string;
+  company_name: string;
+  est_valuation?: number;
 }) {
   return request<AssetOut>("/assets", {
     method: "POST",
@@ -60,15 +65,15 @@ export function createAsset(data: {
   });
 }
 
-export function getAsset(id: number) {
+export function getAsset(id: string) {
   return request<AssetOut>(`/assets/${id}`);
 }
 
-export function getAssetStatus(id: number) {
-  return request<{ id: number; status: string }>(`/assets/${id}/status`);
+export function getAssetStatus(id: string) {
+  return request<{ id: string; status: string }>(`/assets/${id}/status`);
 }
 
-export function uploadPdf(id: number, file: File) {
+export function uploadPdf(id: string, file: File) {
   const form = new FormData();
   form.append("file", file);
   return request<{ message: string }>(`/assets/${id}/upload`, {
@@ -77,19 +82,19 @@ export function uploadPdf(id: number, file: File) {
   });
 }
 
-export function submitAsset(id: number) {
+export function submitAsset(id: string) {
   return request<{ message: string }>(`/assets/${id}/submit`, {
     method: "POST",
   });
 }
 
-export function withdrawAsset(id: number) {
+export function withdrawAsset(id: string) {
   return request<{ message: string }>(`/assets/${id}`, { method: "DELETE" });
 }
 
 // ── Extractions ──────────────────────────────────────────────────────────────
 export interface FieldOut {
-  id: number;
+  id: string;
   field_key: string;
   section: string;
   display_label: string;
@@ -108,18 +113,18 @@ export interface ExtractionOut {
   counts: { total: number; confirmed: number; low: number };
 }
 
-export function getExtraction(assetId: number) {
+export function getExtraction(assetId: string) {
   return request<ExtractionOut>(`/assets/${assetId}/extraction`);
 }
 
-export function overrideField(fieldId: number, value: string, reason: string) {
+export function overrideField(fieldId: string, value: string, reason: string) {
   return request<FieldOut>(`/extractions/fields/${fieldId}`, {
     method: "PATCH",
     body: JSON.stringify({ new_value: value, reason }),
   });
 }
 
-export function confirmField(fieldId: number) {
+export function confirmField(fieldId: string) {
   return request<FieldOut>(`/extractions/fields/${fieldId}/confirm`, {
     method: "POST",
   });
@@ -127,8 +132,8 @@ export function confirmField(fieldId: number) {
 
 // ── Compliance ───────────────────────────────────────────────────────────────
 export interface ComplianceItem {
-  id: number;
-  asset_id: number;
+  id: string;
+  asset_id: string;
   asset_name: string;
   review_type: string;
   status: string;
@@ -145,12 +150,12 @@ export function getComplianceQueue() {
   return request<ComplianceItem[]>("/compliance/queue");
 }
 
-export function getComplianceItem(id: number) {
+export function getComplianceItem(id: string) {
   return request<ComplianceDetail>(`/compliance/${id}`);
 }
 
 export function submitComplianceDecision(
-  id: number,
+  id: string,
   decision: "approved" | "rejected",
   notes: string
 ) {
@@ -162,7 +167,7 @@ export function submitComplianceDecision(
 
 // ── Contracts ────────────────────────────────────────────────────────────────
 export interface GeneratedContractOut {
-  id: number;
+  id: string;
   template_used: string;
   solidity_source: string;
   human_summary: string;
@@ -171,11 +176,11 @@ export interface GeneratedContractOut {
   created_at: string;
 }
 
-export function getContract(assetId: number) {
+export function getContract(assetId: string) {
   return request<GeneratedContractOut>(`/assets/${assetId}/contract`);
 }
 
-export function approveContract(assetId: number, role: string) {
+export function approveContract(assetId: string, role: string) {
   return request<{ message: string }>(`/assets/${assetId}/contract/approve`, {
     method: "POST",
     body: JSON.stringify({ role }),
@@ -184,7 +189,7 @@ export function approveContract(assetId: number, role: string) {
 
 // ── Deployments ───────────────────────────────────────────────────────────────
 export interface DeploymentOut {
-  id: number;
+  id: string;
   network: string;
   contract_address: string | null;
   tx_hash: string | null;
@@ -194,17 +199,17 @@ export interface DeploymentOut {
 }
 
 export interface AuditEventOut {
-  id: number;
+  id: string;
   event_type: string;
   actor: string | null;
   description: string;
   created_at: string;
 }
 
-export function getDeployment(assetId: number) {
+export function getDeployment(assetId: string) {
   return request<DeploymentOut>(`/assets/${assetId}/deployment`);
 }
 
-export function getAuditLog(assetId: number) {
+export function getAuditLog(assetId: string) {
   return request<AuditEventOut[]>(`/assets/${assetId}/audit`);
 }

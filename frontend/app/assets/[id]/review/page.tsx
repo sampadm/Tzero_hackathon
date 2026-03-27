@@ -26,8 +26,8 @@ function FieldRow({
   onOverride,
 }: {
   field: FieldOut;
-  onConfirm: (id: number) => void;
-  onOverride: (id: number, val: string, reason: string) => void;
+  onConfirm: (id: string) => void;
+  onOverride: (id: string, val: string, reason: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [editVal, setEditVal] = useState(field.display_value);
@@ -248,7 +248,7 @@ function FieldRow({
 export default function ReviewPage() {
   const router = useRouter();
   const params = useParams();
-  const assetId = Number(params.id);
+  const assetId = String(params.id);
 
   const [asset, setAsset] = useState<AssetOut | null>(null);
   const [extraction, setExtraction] = useState<ExtractionOut | null>(null);
@@ -285,7 +285,7 @@ export default function ReviewPage() {
     return () => clearInterval(id);
   }, [polling, load]);
 
-  async function handleConfirm(fieldId: number) {
+  async function handleConfirm(fieldId: string) {
     try {
       await confirmField(fieldId);
       await load();
@@ -295,7 +295,7 @@ export default function ReviewPage() {
   }
 
   async function handleOverride(
-    fieldId: number,
+    fieldId: string,
     val: string,
     reason: string
   ) {
@@ -391,7 +391,7 @@ export default function ReviewPage() {
                 fontWeight: 600,
               }}
             >
-              {asset?.ticker}
+              {asset?.ref_number}
             </span>
           </div>
 

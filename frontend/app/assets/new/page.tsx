@@ -11,22 +11,14 @@ const STEPS = [
   { n: 3, label: "Submit for Review" },
 ];
 
-const ASSET_TYPES = [
-  { value: "common_equity", label: "Common Equity" },
-  { value: "preferred_equity", label: "Preferred Equity" },
-  { value: "convertible_note", label: "Convertible Note" },
-  { value: "safe", label: "SAFE" },
-];
-
 export default function NewAssetPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [assetId, setAssetId] = useState<number | null>(null);
+  const [assetId, setAssetId] = useState<string | null>(null);
 
   // Step 1
   const [name, setName] = useState("");
-  const [ticker, setTicker] = useState("");
-  const [assetType, setAssetType] = useState("preferred_equity");
+  const [companyName, setCompanyName] = useState("");
 
   // Step 2
   const [file, setFile] = useState<File | null>(null);
@@ -40,7 +32,7 @@ export default function NewAssetPage() {
     setError("");
     setLoading(true);
     try {
-      const asset = await createAsset({ name, ticker, asset_type: assetType });
+      const asset = await createAsset({ name, company_name: companyName });
       setAssetId(asset.id);
       setStep(2);
     } catch (err: unknown) {
@@ -248,31 +240,15 @@ export default function NewAssetPage() {
                 />
               </div>
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={labelStyle}>Ticker Symbol</label>
+              <div style={{ marginBottom: 28 }}>
+                <label style={labelStyle}>Company Name</label>
                 <input
                   style={inputStyle}
-                  value={ticker}
-                  onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
                   required
-                  maxLength={8}
-                  placeholder="e.g. ACMB"
+                  placeholder="e.g. Acme Inc."
                 />
-              </div>
-
-              <div style={{ marginBottom: 28 }}>
-                <label style={labelStyle}>Asset Type</label>
-                <select
-                  style={{ ...inputStyle, cursor: "pointer" }}
-                  value={assetType}
-                  onChange={(e) => setAssetType(e.target.value)}
-                >
-                  {ASSET_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               {error && (
@@ -507,9 +483,8 @@ export default function NewAssetPage() {
                 }}
               >
                 {[
-                  ["Asset", name],
-                  ["Ticker", ticker],
-                  ["Type", assetType.replace(/_/g, " ")],
+                  ["Asset Name", name],
+                  ["Company", companyName],
                   ["PDF", file?.name ?? "—"],
                 ].map(([k, v]) => (
                   <div

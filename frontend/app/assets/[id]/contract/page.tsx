@@ -15,7 +15,7 @@ import { getRole } from "@/lib/auth";
 export default function ContractPage() {
   const router = useRouter();
   const params = useParams();
-  const assetId = Number(params.id);
+  const assetId = String(params.id);
   const role = getRole();
 
   const [asset, setAsset] = useState<AssetOut | null>(null);

@@ -298,7 +298,7 @@ export default function DashboardPage() {
                     background: "var(--surface)",
                   }}
                 >
-                  {["Asset Name", "Ticker", "Type", "Status", "Created", ""].map(
+                  {["Asset Name", "Company", "Ref #", "Status", "Created", ""].map(
                     (h) => (
                       <th
                         key={h}
@@ -341,22 +341,21 @@ export default function DashboardPage() {
                     <td
                       style={{
                         padding: "16px 20px",
-                        color: "var(--emerald)",
-                        fontFamily: "monospace",
+                        color: "var(--text-secondary)",
                         fontSize: 13,
                       }}
                     >
-                      {asset.ticker}
+                      {asset.company_name}
                     </td>
                     <td
                       style={{
                         padding: "16px 20px",
-                        color: "var(--text-secondary)",
-                        fontSize: 13,
-                        textTransform: "capitalize",
+                        color: "var(--text-dim)",
+                        fontSize: 12,
+                        fontFamily: "monospace",
                       }}
                     >
-                      {asset.asset_type.replace(/_/g, " ")}
+                      {asset.ref_number}
                     </td>
                     <td style={{ padding: "16px 20px" }}>
                       <span
