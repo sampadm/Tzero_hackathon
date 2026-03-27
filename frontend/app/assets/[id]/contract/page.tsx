@@ -31,8 +31,8 @@ export default function ContractPage() {
       const a = await getAsset(assetId);
       setAsset(a);
       const isGenerating = [
-        "awaiting_contract_generation",
-        "intermediary_review_complete",
+        "contract_generating",
+        "compliance_approved",
       ].includes(a.status);
       setPolling(isGenerating);
 

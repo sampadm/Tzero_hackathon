@@ -9,14 +9,14 @@ import { isLoggedIn, getRole } from "@/lib/auth";
 
 const STATUS_COLORS: Record<string, string> = {
   draft: "var(--text-dim)",
-  pdf_uploaded: "var(--info)",
-  extracting: "var(--amber)",
-  extraction_complete: "var(--info)",
+  pdf_processing: "var(--amber)",
   awaiting_intermediary_review: "var(--amber)",
-  intermediary_review_complete: "var(--info)",
-  awaiting_contract_generation: "var(--amber)",
-  contract_generated: "var(--info)",
+  submitted_for_compliance: "var(--info)",
+  changes_requested: "var(--danger)",
+  compliance_approved: "var(--info)",
+  contract_generating: "var(--amber)",
   awaiting_contract_approval: "var(--amber)",
+  contract_approved: "var(--info)",
   deploying: "var(--amber)",
   deployed: "var(--emerald)",
   rejected: "var(--danger)",
@@ -25,14 +25,14 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATUS_LABELS: Record<string, string> = {
   draft: "Draft",
-  pdf_uploaded: "PDF Uploaded",
-  extracting: "AI Extracting…",
-  extraction_complete: "Extraction Done",
+  pdf_processing: "AI Extracting…",
   awaiting_intermediary_review: "Awaiting Review",
-  intermediary_review_complete: "Review Done",
-  awaiting_contract_generation: "Generating Contract…",
-  contract_generated: "Contract Ready",
+  submitted_for_compliance: "In Compliance Review",
+  changes_requested: "Changes Requested",
+  compliance_approved: "Compliance Approved",
+  contract_generating: "Generating Contract…",
   awaiting_contract_approval: "Awaiting Approval",
+  contract_approved: "Contract Approved",
   deploying: "Deploying…",
   deployed: "Deployed",
   rejected: "Rejected",
@@ -41,23 +41,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 function getAssetLink(asset: AssetOut): string {
   const s = asset.status;
-  if (["draft", "pdf_uploaded", "extracting"].includes(s))
-    return `/assets/${asset.id}/review`;
-  if (
-    [
-      "extraction_complete",
-      "awaiting_intermediary_review",
-      "intermediary_review_complete",
-    ].includes(s)
-  )
-    return `/assets/${asset.id}/review`;
-  if (
-    [
-      "awaiting_contract_generation",
-      "contract_generated",
-      "awaiting_contract_approval",
-    ].includes(s)
-  )
+  if (["contract_generating", "awaiting_contract_approval", "contract_approved"].includes(s))
     return `/assets/${asset.id}/contract`;
   if (["deploying", "deployed"].includes(s))
     return `/assets/${asset.id}/deployment`;
@@ -164,10 +148,7 @@ export default function DashboardPage() {
               {
                 label: "Active",
                 value: assets.filter(
-                  (a) =>
-                    !["deployed", "rejected", "withdrawn", "draft"].includes(
-                      a.status
-                    )
+                  (a) => !["deployed", "rejected", "withdrawn", "draft"].includes(a.status)
                 ).length,
                 color: "var(--amber)",
               },
@@ -373,7 +354,7 @@ export default function DashboardPage() {
                           borderRadius: 20,
                         }}
                       >
-                        {["extracting", "deploying"].includes(asset.status) && (
+                        {["pdf_processing", "contract_generating", "deploying"].includes(asset.status) && (
                           <span style={{ animation: "spin 1s linear infinite" }}>
                             ⟳
                           </span>

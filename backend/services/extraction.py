@@ -141,6 +141,8 @@ def run_extraction(run_id: str, pdf_path: str, asset_id: str):
         db.commit()
 
     except Exception as e:
+        print(f"[EXTRACTION ERROR] run_id={run_id}: {type(e).__name__}: {e}", flush=True)
+        import traceback; traceback.print_exc()
         db.rollback()
         try:
             run = db.query(ExtractionRun).filter(ExtractionRun.id == run_id).first()
