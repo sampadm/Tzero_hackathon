@@ -105,12 +105,20 @@ export interface FieldOut {
   notes: string | null;
 }
 
+export interface ComplianceFlag {
+  id: string;
+  label: string;
+  description: string;
+  auto_encoded: boolean;
+}
+
 export interface ExtractionOut {
-  run_id: number;
+  run_id: string;
   status: string;
-  fields: Record<string, FieldOut[]>;
-  compliance_flags: string[];
-  counts: { total: number; confirmed: number; low: number };
+  error_message?: string | null;
+  sections: Record<string, FieldOut[]>;
+  compliance_flags: ComplianceFlag[];
+  counts: { total: number; high: number; medium: number; needs_review: number; overridden: number };
 }
 
 export function getExtraction(assetId: string) {

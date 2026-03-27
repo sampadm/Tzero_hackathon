@@ -339,10 +339,10 @@ export default function ReviewPage() {
 
   const status = asset?.status ?? "";
   const isExtracting = ["extracting", "pdf_uploaded"].includes(status);
-  const hasExtraction = extraction && extraction.fields;
+  const hasExtraction = extraction && extraction.sections;
   const canProceed =
     hasExtraction &&
-    extraction.counts.low === 0 &&
+    extraction.counts.needs_review === 0 &&
     ["extraction_complete", "awaiting_intermediary_review"].includes(status);
 
   return (
@@ -487,12 +487,14 @@ export default function ReviewPage() {
             >
               Compliance Flags
             </div>
-            {extraction.compliance_flags.map((f, i) => (
-              <div
-                key={i}
-                style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}
-              >
-                ⚠ {f}
+            {extraction.compliance_flags.map((f) => (
+              <div key={f.id} style={{ marginBottom: 8 }}>
+                <div style={{ fontSize: 13, color: "var(--amber)", fontWeight: 600 }}>
+                  ⚠ {f.label}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+                  {f.description}
+                </div>
               </div>
             ))}
           </div>
@@ -515,13 +517,13 @@ export default function ReviewPage() {
               },
               {
                 label: "Confirmed",
-                value: extraction.counts.confirmed,
+                value: extraction.counts.total - extraction.counts.needs_review,
                 color: "var(--emerald)",
               },
               {
                 label: "Needs Review",
-                value: extraction.counts.low,
-                color: extraction.counts.low > 0 ? "var(--danger)" : "var(--text-dim)",
+                value: extraction.counts.needs_review,
+                color: extraction.counts.needs_review > 0 ? "var(--danger)" : "var(--text-dim)",
               },
             ].map((s) => (
               <div
@@ -562,7 +564,7 @@ export default function ReviewPage() {
 
         {/* Field sections */}
         {hasExtraction &&
-          Object.entries(extraction.fields).map(([section, fields]) => (
+          Object.entries(extraction.sections).map(([section, fields]) => (
             <div
               key={section}
               style={{
@@ -626,7 +628,7 @@ export default function ReviewPage() {
           </div>
         )}
 
-        {extraction && extraction.counts.low > 0 && (
+        {extraction && extraction.counts.needs_review > 0 && (
           <div
             style={{
               marginTop: 16,
@@ -639,7 +641,7 @@ export default function ReviewPage() {
               textAlign: "center",
             }}
           >
-            {extraction.counts.low} field(s) have LOW confidence — please
+            {extraction.counts.needs_review} field(s) have LOW confidence — please
             confirm or edit them before proceeding
           </div>
         )}
